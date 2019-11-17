@@ -1,0 +1,316 @@
+{
+  "tree": [
+    {
+      "title": "6-label",
+      "key": "6-key",
+      "children": [
+        {
+          "title": "11-label",
+          "key": "11-key"
+        },
+        {
+          "title": "12-label",
+          "key": "12-key"
+        },
+        {
+          "title": "13-label",
+          "key": "13-key",
+          "children": [
+            {
+              "title": "17-label",
+              "key": "17-key",
+              "children": [
+                {
+                  "title": "18-label",
+                  "key": "18-key"
+                },
+                {
+                  "title": "16-label",
+                  "key": "16-key",
+                  "children": []
+                },
+                {
+                  "title": "19-label",
+                  "key": "19-key"
+                }
+              ]
+            },
+            {
+              "title": "20-label",
+              "key": "20-key",
+              "children": [
+                {
+                  "title": "8-label",
+                  "key": "8-key"
+                },
+                {
+                  "title": "9-label",
+                  "key": "9-key"
+                },
+                {
+                  "title": "10-label",
+                  "key": "10-key"
+                }
+              ]
+            },
+            {
+              "title": "7-label",
+              "key": "7-key",
+              "children": []
+            },
+            {
+              "title": "26-label",
+              "key": "26-key"
+            }
+          ]
+        },
+        {
+          "title": "14-label",
+          "key": "14-key"
+        },
+        {
+          "title": "15-label",
+          "key": "15-key",
+          "children": [
+            {
+              "title": "27-label",
+              "key": "27-key"
+            },
+            {
+              "title": "23-label",
+              "key": "23-key"
+            },
+            {
+              "title": "29-label",
+              "key": "29-key"
+            }
+          ]
+        },
+        {
+          "title": "28-label",
+          "key": "28-key"
+        }
+      ]
+    },
+    {
+      "title": "22-label",
+      "key": "22-key",
+      "children": [
+        {
+          "title": "3-label",
+          "key": "3-key"
+        },
+        {
+          "title": "31-label",
+          "key": "31-key"
+        },
+        {
+          "title": "32-label",
+          "key": "32-key"
+        },
+        {
+          "title": "33-label",
+          "key": "33-key"
+        },
+        {
+          "title": "34-label",
+          "key": "34-key"
+        },
+        {
+          "title": "35-label",
+          "key": "35-key"
+        },
+        {
+          "title": "21-label",
+          "key": "21-key",
+          "children": [
+            {
+              "title": "30-label",
+              "key": "30-key"
+            }
+          ]
+        },
+        {
+          "title": "2-label",
+          "key": "2-key",
+          "children": [
+            {
+              "title": "24-label",
+              "key": "24-key"
+            }
+          ]
+        },
+        {
+          "title": "25-label",
+          "key": "25-key",
+          "children": []
+        },
+        {
+          "title": "5-label",
+          "key": "5-key",
+          "children": []
+        },
+        {
+          "title": "4-label",
+          "key": "4-key"
+        },
+        {
+          "title": "1-label",
+          "key": "1-key",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "properties": {
+    "3-key": {
+      "icon": "DocumentSearch",
+      "title": "Find Documentation"
+    },
+    "1-key": {
+      "title": "Organisation",
+      "icon": "Org",
+      "type": "heading",
+      "link": "https://powerbi.com",
+      "imageSrc": "https://blob.jumpto365.com/images/n/e/t/nets.eu/n/ngjoh@nets.eu/2019/06/extranets.eu.png-20190617-162040.png"
+    },
+    "2-key": {
+      "title": "Communicate",
+      "icon": "Communications"
+    },
+    "4-key": {
+      "title": "Share Documentation",
+      "icon": "Share"
+    },
+    "5-key": {
+      "title": "Plan",
+      "icon": "PlannerLogo"
+    },
+    "21-key": {
+      "title": "Get Access",
+      "icon": "NetworkTower"
+    },
+    "25-key": {
+      "title": "Local Navigation",
+      "icon": "CollapseMenu"
+    },
+    "22-key": {
+      "title": "Options",
+      "link": "",
+      "icon": "Settings"
+    },
+    "31-key": {
+      "title": "Toolbar Language",
+      "icon": "LocaleLanguage"
+    },
+    "34-key": {
+      "icon": "Cake"
+    },
+    "33-key": {
+      "icon": "BusSolid"
+    },
+    "32-key": {
+      "icon": "Cafe"
+    },
+    "35-key": {
+      "icon": "Calculator"
+    },
+    "30-key": {
+      "icon": "BufferTimeAfter"
+    },
+    "29-key": {
+      "icon": "Org",
+      "title": "Centre of Digital"
+    },
+    "28-key": {
+      "icon": "Org",
+      "title": "Chief of Staff"
+    },
+    "26-key": {
+      "icon": "Org",
+      "title": "IT Service Transistion Management"
+    },
+    "27-key": {
+      "icon": "Org",
+      "title": "Vendor Relations"
+    },
+    "24-key": {
+      "icon": "BranchMerge"
+    },
+    "23-key": {
+      "icon": "Org",
+      "title": "Centre of Engineering"
+    },
+    "10-key": {
+      "icon": "Org",
+      "title": "Centurion"
+    },
+    "9-key": {
+      "icon": "Org",
+      "type": "link",
+      "title": "Group IT Outsourcing"
+    },
+    "8-key": {
+      "icon": "Org",
+      "type": "link",
+      "title": "Outsourced Infrastructure Services",
+      "table": "Table Name",
+      "tile": "Tile Name"
+    },
+    "7-key": {
+      "icon": "Org",
+      "type": "link",
+      "title": "Demand and Delivery Management",
+      "table": "Table Name"
+    },
+    "6-key": {
+      "icon": "Org",
+      "title": "Group Technology",
+      "link": "https://link.to",
+      "type": "megamenu"
+    },
+    "11-key": {
+      "icon": "Org",
+      "title": "Group Architecture & Data",
+      "type": "link"
+    },
+    "12-key": {
+      "icon": "Org",
+      "title": "Group Security",
+      "type": "link"
+    },
+    "13-key": {
+      "icon": "Org",
+      "title": "Group IT",
+      "type": "link"
+    },
+    "14-key": {
+      "icon": "Org",
+      "title": "Group IT Service Management"
+    },
+    "15-key": {
+      "icon": "Org",
+      "title": "Group Technology Capability Office"
+    },
+    "17-key": {
+      "title": "Group Shared Services & Integrations",
+      "icon": "Org"
+    },
+    "18-key": {
+      "title": "Telecom & Contact Centre IT",
+      "icon": "Org"
+    },
+    "16-key": {
+      "icon": "Org",
+      "title": "Group IT Integration"
+    },
+    "19-key": {
+      "title": "Digital Workplace & Collaboration Tools",
+      "icon": "Org"
+    },
+    "20-key": {
+      "title": "SIAM",
+      "icon": "Org"
+    }
+  }
+}

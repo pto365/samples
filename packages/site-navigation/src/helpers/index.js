@@ -11,7 +11,6 @@ export function getSearchParametersFromHRef(href) {
   }
   return search;
 }
-
 export function getSearchParametersFromHash(href) {
   if (!href) return {};
   var search = {};

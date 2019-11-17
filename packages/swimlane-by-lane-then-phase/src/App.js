@@ -3,8 +3,7 @@ import React, { Component } from "react";
 import "./App.css";
 import "./css/normalize.css";
 import "./css/webflow.css";
-import "./css/nets-technology-process-map.webflow.css";
-import { getSearchParametersFromHRef } from "./helpers";
+import "./css/swimlane-process-map.webflow.css";
 import sample from "./sample.json";
 export default class componentName extends Component {
   componentDidMount() {
@@ -17,7 +16,7 @@ export default class componentName extends Component {
         return response.json();
       })
       .then(json => {
-        json = sample;
+       // json = sample;
         var matrix = {
           rowLabels: [],
           phases: []
@@ -43,8 +42,14 @@ export default class componentName extends Component {
           grid[1].forEach((cell, id) => {
             if (cell.groupSetting) {
               var phase = {
-                header: { text: cell.groupSetting.title ,
-                  color: cell.groupSetting ? cell.groupSetting.color : "",},
+                header: {
+                  text: cell.groupSetting.title,
+                  color: cell.groupSetting ? cell.groupSetting.color : "",
+                  textColor: cell.groupSetting
+                    ? cell.groupSetting.textColor
+                    : ""
+                },
+
                 rows: []
               };
 
@@ -52,15 +57,16 @@ export default class componentName extends Component {
                 if (hasLabel[index]) {
                   const contentCell = grid[index][id];
                   phase.rows.push({
+                  
                     text: contentCell.tile ? contentCell.tile.inShort : "",
                     color: contentCell.tile ? contentCell.tile.color : "",
+                    textColor: contentCell.tile ? contentCell.tile.textcolor : "",
+                    href:contentCell.tile ? contentCell.tile.jumpto : ""
                   });
                 }
               }
               matrix.phases.push(phase);
-              
             }
-            debugger
           });
         }
 
@@ -159,7 +165,7 @@ export default class componentName extends Component {
               this.state.matrix.rowLabels &&
               this.state.matrix.rowLabels.map((rowLabel, id) => {
                 return (
-                  <div className="rowlabelcontainer" key={id} >
+                  <div className="rowlabelcontainer" key={id}>
                     <div className="processrowlabel">{rowLabel.text}</div>
                   </div>
                 );
@@ -171,9 +177,12 @@ export default class componentName extends Component {
             this.state.matrix.phases.map((phase, id) => {
               return (
                 <div className="netsprocessphase" key={id}>
-                  <div className="netsprocessphaseheader" >
-                    <div className="phase1" >
-                      <div className="div-block-13 w-clearfix" style={{backgroundColor:phase.color}}>
+                  <div className="netsprocessphaseheader">
+                    <div
+                      className="phase1"
+                      style={{ backgroundColor: phase.header.color,color:phase.header.textColor }}
+                    >
+                      <div className="div-block-13 w-clearfix">
                         {id > 0 && (
                           <img
                             src="images/Chevron-right_Web_Fundamentals.svg"
@@ -191,11 +200,15 @@ export default class componentName extends Component {
                     </div>
                   </div>
                   {phase.rows.map((row, id) => {
+                    if (!row.text) return  <div className="netsprocesscell" key={id} />
+                    var search = getSearchParametersFromHRef(window.location.href);
+                    var dataHref = search.data
+                    var isCurrent = search.context === row.href
                     return (
-                      <div className="netsprocesscell" key={id}>
+                      <div className="netsprocesscell" key={id} >
                         {/* eslint-disable-next-line */}
-                        <a href="#" className="celllink w-inline-block">
-                          <div className="middlecentertext">{row.text}</div>
+                        <a href={row.href} target="_top" className="celllink w-inline-block" style={{color:isCurrent ? row.color: row.textColor,backgroundColor:isCurrent ?  row.textColor : row.color}}>
+                          <div dangerouslySetInnerHTML={{__html:row.text.replace(/\n/g, "<br />")}}  className="middlecentertext"></div>
                         </a>
                       </div>
                     );
