@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-
+import {
+  getSearchParametersFromHRef
+} from "./helpers";
 import "./App.css";
 import "./css/normalize.css";
 import "./css/webflow.css";
@@ -154,7 +156,8 @@ export default class componentName extends Component {
   }
   render() {
     return (
-      <div className="w-container">
+      <div className="w-container" style={{marginLeft:"0px"}}>
+      
         <div className="netsprocessmatrix">
           <div className="netsprocessphasecolumn">
             <div className="rowlabelheadercontainer">

@@ -10,6 +10,7 @@ import {
 } from "./helpers";
 import sample from "./sample.json";
 import _ from "lodash";
+import "office-ui-fabric-core/dist/css/fabric.min.css"
 export default class componentName extends Component {
   hasChanged = e => {
     if (!this.state) return;
@@ -21,7 +22,15 @@ export default class componentName extends Component {
     var that = this;
     function findCurrentLeaf(leaf, parents) {
       if (hash.key && hash.key === leaf.key) {
-        that.current = { leaf, parents };
+        var p = []
+
+        parents.forEach(parent => {
+          p.push(parent)
+        });
+        //p.push(leaf)
+       
+        
+        that.current = { leaf, parents:p };
         return;
       }
 
@@ -36,7 +45,7 @@ export default class componentName extends Component {
     findCurrentLeaf(tree, []);
 
     if (!this.current) {
-      this.current = { leaf: tree, parents: [] };
+      this.current = { leaf: tree, parents: [tree] };
     }
     if (
       this.state.current &&
@@ -96,7 +105,7 @@ export default class componentName extends Component {
     //    var toolbar = search.data; // "https://api.jumpto365.com/table/nets.eu/group-tech-highlevel";
   }
   render() {
-    
+    var hash = getSearchParametersFromHash(window.location.href);
     var current =
       this.state && this.state.current && this.state.current.leaf
         ? this.state.current.leaf
@@ -113,10 +122,10 @@ export default class componentName extends Component {
 
     return (
       <div className="section-30">
-        <div className="w-container">
-          <div className="div-block-31">
+        <div className="w-container" style={{maxWidth:"1244px"}}>
+          {/* <div className="div-block-31">
             <div className="div-block-32">
-              <div className="domainbartitlle">{current.title}</div>
+              <div className="domainbartitlle ms-fontSize-28">{current.title}</div>
             </div>
             <div className="div-block-33">
               <div className="div-block-28">
@@ -129,8 +138,8 @@ export default class componentName extends Component {
                 </div>
               </div>
             </div>
-          </div>
-          <div className="div-block-34">
+          </div> */}
+          <div className="div-block-34" style={{paddingLeft:"10px"}}>
             {/* <div><a href="https://header-division-department-team.webflow.io/unit/group-technology" className="link">Group Technology &gt; </a></div>
           <div><a href="https://header-division-department-team.webflow.io/divisions/group-it" className="link">Group IT &gt; </a></div> */}
             {parents.map((parent, key) => {
@@ -147,6 +156,18 @@ export default class componentName extends Component {
                 </div>
               );
             })}
+
+{current && <div >
+                  
+                    <div className="html-embed-8 w-embed">
+                   
+                      {current.title}
+                      <span className="pipe">></span>
+                    </div>
+                 
+                </div>
+
+}
             {current &&
               current.childs &&
               current.childs.map((child, key) => {
@@ -162,9 +183,20 @@ export default class componentName extends Component {
                   </div>
                 );
               })}
+{current && hash.key && <div >
+                  <a href={current.link} className="link-block-7 w-inline-block" title={"Jump to " + current.title}>
+                    <div className="html-embed-8 w-embed" style={{color:"white",backgroundColor:"#aaaaaa",
+                    marginLeft:"8px", borderRadius:"6px",  paddingLeft:"8px",paddingRight:"8px",cursor:"pointer"}}>
+                   
+Jump to 
+                      
+                    </div>
+                  </a>
+                </div>
 
+}
             <div>
-              <div className="html-embed-7 w-embed"> ></div>
+             
             </div>
           </div>
         </div>

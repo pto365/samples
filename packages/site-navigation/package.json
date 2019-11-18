@@ -6,7 +6,9 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
-    "lodash": "4.17.15"
+    "lodash": "4.17.15",
+    "office-ui-fabric-react":"^7.61.1",
+    "office-ui-fabric-core":"^11.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
