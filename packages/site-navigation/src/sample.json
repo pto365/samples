@@ -1,222 +1,271 @@
 {
   "tree": [
     {
-      "title": "6-label",
-      "key": "6-key",
+      "title": "30-label",
+      "key": "30-key",
       "children": [
         {
-          "title": "11-label",
-          "key": "11-key"
-        },
-        {
-          "title": "12-label",
-          "key": "12-key"
-        },
-        {
-          "title": "13-label",
-          "key": "13-key",
+          "title": "6-label",
+          "key": "6-key",
           "children": [
             {
-              "title": "17-label",
-              "key": "17-key",
+              "title": "11-label",
+              "key": "11-key"
+            },
+            {
+              "title": "12-label",
+              "key": "12-key"
+            },
+            {
+              "title": "13-label",
+              "key": "13-key",
               "children": [
                 {
-                  "title": "18-label",
-                  "key": "18-key"
+                  "title": "17-label",
+                  "key": "17-key",
+                  "children": [
+                    {
+                      "title": "18-label",
+                      "key": "18-key"
+                    },
+                    {
+                      "title": "16-label",
+                      "key": "16-key",
+                      "children": []
+                    },
+                    {
+                      "title": "19-label",
+                      "key": "19-key"
+                    }
+                  ]
                 },
                 {
-                  "title": "16-label",
-                  "key": "16-key",
+                  "title": "20-label",
+                  "key": "20-key",
+                  "children": [
+                    {
+                      "title": "8-label",
+                      "key": "8-key"
+                    },
+                    {
+                      "title": "9-label",
+                      "key": "9-key"
+                    },
+                    {
+                      "title": "10-label",
+                      "key": "10-key"
+                    }
+                  ]
+                },
+                {
+                  "title": "7-label",
+                  "key": "7-key",
                   "children": []
                 },
                 {
-                  "title": "19-label",
-                  "key": "19-key"
+                  "title": "26-label",
+                  "key": "26-key"
                 }
               ]
             },
             {
-              "title": "20-label",
-              "key": "20-key",
+              "title": "14-label",
+              "key": "14-key"
+            },
+            {
+              "title": "15-label",
+              "key": "15-key",
               "children": [
                 {
-                  "title": "8-label",
-                  "key": "8-key"
+                  "title": "27-label",
+                  "key": "27-key"
                 },
                 {
-                  "title": "9-label",
-                  "key": "9-key"
+                  "title": "23-label",
+                  "key": "23-key"
                 },
                 {
-                  "title": "10-label",
-                  "key": "10-key"
+                  "title": "29-label",
+                  "key": "29-key",
+                  "children": [
+                    {
+                      "title": "2-label",
+                      "key": "2-key",
+                      "children": []
+                    }
+                  ]
                 }
               ]
             },
             {
-              "title": "7-label",
-              "key": "7-key",
-              "children": []
-            },
-            {
-              "title": "26-label",
-              "key": "26-key"
-            }
-          ]
-        },
-        {
-          "title": "14-label",
-          "key": "14-key"
-        },
-        {
-          "title": "15-label",
-          "key": "15-key",
-          "children": [
-            {
-              "title": "27-label",
-              "key": "27-key"
-            },
-            {
-              "title": "23-label",
-              "key": "23-key"
-            },
-            {
-              "title": "29-label",
-              "key": "29-key"
-            }
-          ]
-        },
-        {
-          "title": "28-label",
-          "key": "28-key"
-        }
-      ]
-    },
-    {
-      "title": "22-label",
-      "key": "22-key",
-      "children": [
-        {
-          "title": "3-label",
-          "key": "3-key"
-        },
-        {
-          "title": "31-label",
-          "key": "31-key"
-        },
-        {
-          "title": "32-label",
-          "key": "32-key"
-        },
-        {
-          "title": "33-label",
-          "key": "33-key"
-        },
-        {
-          "title": "34-label",
-          "key": "34-key"
-        },
-        {
-          "title": "35-label",
-          "key": "35-key"
-        },
-        {
-          "title": "21-label",
-          "key": "21-key",
-          "children": [
-            {
-              "title": "30-label",
-              "key": "30-key"
-            }
-          ]
-        },
-        {
-          "title": "2-label",
-          "key": "2-key",
-          "children": [
-            {
-              "title": "24-label",
-              "key": "24-key"
+              "title": "28-label",
+              "key": "28-key",
+              "children": [
+                {
+                  "title": "22-label",
+                  "key": "22-key",
+                  "children": []
+                }
+              ]
             }
           ]
         },
         {
           "title": "25-label",
           "key": "25-key",
-          "children": []
+          "children": [
+            {
+              "title": "3-label",
+              "key": "3-key"
+            },
+            {
+              "title": "31-label",
+              "key": "31-key"
+            },
+            {
+              "title": "32-label",
+              "key": "32-key"
+            },
+            {
+              "title": "33-label",
+              "key": "33-key"
+            },
+            {
+              "title": "34-label",
+              "key": "34-key"
+            },
+            {
+              "title": "35-label",
+              "key": "35-key"
+            },
+            {
+              "title": "21-label",
+              "key": "21-key",
+              "children": []
+            }
+          ]
         },
         {
           "title": "5-label",
           "key": "5-key",
-          "children": []
-        },
-        {
-          "title": "4-label",
-          "key": "4-key"
-        },
-        {
-          "title": "1-label",
-          "key": "1-key",
-          "children": []
+          "children": [
+            {
+              "title": "24-label",
+              "key": "24-key",
+              "children": [
+                {
+                  "title": "4-label",
+                  "key": "4-key",
+                  "children": [
+                    {
+                      "title": "1-label",
+                      "key": "1-key",
+                      "children": []
+                    },
+                    {
+                      "title": "300-label",
+                      "key": "300-key"
+                    },
+                    {
+                      "title": "301-label",
+                      "key": "301-key"
+                    },
+                    {
+                      "title": "302-label",
+                      "key": "302-key"
+                    },
+                    {
+                      "title": "303-label",
+                      "key": "303-key"
+                    },
+                    {
+                      "title": "304-label",
+                      "key": "304-key"
+                    },
+                    {
+                      "title": "305-label",
+                      "key": "305-key"
+                    },
+                    {
+                      "title": "306-label",
+                      "key": "306-key"
+                    },
+                    {
+                      "title": "307-label",
+                      "key": "307-key"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     }
   ],
   "properties": {
     "3-key": {
-      "icon": "DocumentSearch",
-      "title": "Find Documentation"
+      "icon": "CommentNext",
+      "title": "Communicate"
     },
     "1-key": {
-      "title": "Organisation",
+      "title": "Governance & Approval",
       "icon": "Org",
-      "type": "heading",
+      "type": "link",
       "link": "https://powerbi.com",
-      "imageSrc": "https://blob.jumpto365.com/images/n/e/t/nets.eu/n/ngjoh@nets.eu/2019/06/extranets.eu.png-20190617-162040.png"
+      "imageSrc": "https://blob.jumpto365.com/images/n/e/t/nets.eu/n/ngjoh@nets.eu/2019/06/extranets.eu.png-20190617-162040.png",
+      "href": "https://christianiabpos.sharepoint.com/sites/intranets-tech/SitePages/Governance-&-Approval---Idea.aspx"
     },
     "2-key": {
-      "title": "Communicate",
-      "icon": "Communications"
+      "title": "Digitisation",
+      "icon": "Org"
     },
     "4-key": {
-      "title": "Share Documentation",
-      "icon": "Share"
+      "title": "Idea",
+      "icon": "Lightbulb"
     },
     "5-key": {
-      "title": "Plan",
+      "title": "Playbook",
       "icon": "PlannerLogo"
     },
     "21-key": {
-      "title": "Get Access",
+      "title": "Access",
       "icon": "NetworkTower"
     },
     "25-key": {
-      "title": "Local Navigation",
-      "icon": "CollapseMenu"
+      "title": "Digital Workplace",
+      "icon": "CollapseMenu",
+      "type": "link"
     },
     "22-key": {
-      "title": "Options",
+      "title": "Portfolio Management",
       "link": "",
-      "icon": "Settings"
+      "icon": "Org"
     },
     "31-key": {
-      "title": "Toolbar Language",
-      "icon": "LocaleLanguage"
+      "title": "Collaborate",
+      "icon": "AddGroup"
     },
     "34-key": {
-      "icon": "Cake"
+      "icon": "Search",
+      "title": "Find"
     },
     "33-key": {
-      "icon": "BusSolid"
+      "icon": "Document",
+      "title": "Document"
     },
     "32-key": {
-      "icon": "Cafe"
+      "icon": "Calendar",
+      "title": "Plan"
     },
     "35-key": {
-      "icon": "Calculator"
+      "icon": "BarChart4",
+      "title": "Insight"
     },
     "30-key": {
-      "icon": "BufferTimeAfter"
+      "icon": "BufferTimeAfter",
+      "title": "Group Technology",
+      "type": "megamenu"
     },
     "29-key": {
       "icon": "Org",
@@ -235,7 +284,8 @@
       "title": "Vendor Relations"
     },
     "24-key": {
-      "icon": "BranchMerge"
+      "icon": "BranchMerge",
+      "title": "Stages"
     },
     "23-key": {
       "icon": "Org",
@@ -248,7 +298,8 @@
     "9-key": {
       "icon": "Org",
       "type": "link",
-      "title": "Group IT Outsourcing"
+      "title": "Group IT Outsourcing",
+      "href": "https://christianiabpos.sharepoint.com/sites/intranets-tech/SitePages/Group-IT-Outsourcing.aspx"
     },
     "8-key": {
       "icon": "Org",
@@ -265,8 +316,7 @@
     },
     "6-key": {
       "icon": "Org",
-      "title": "Group Technology",
-      "link": "https://link.to",
+      "title": "Organisation",
       "type": "megamenu"
     },
     "11-key": {
@@ -306,7 +356,8 @@
     },
     "19-key": {
       "title": "Digital Workplace & Collaboration Tools",
-      "icon": "Org"
+      "icon": "Org",
+      "href": "https://christianiabpos.sharepoint.com/sites/intranets-tech/SitePages/Digital-Workplace-&-Collaboration-Tools.aspx"
     },
     "20-key": {
       "title": "SIAM",

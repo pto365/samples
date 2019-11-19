@@ -19,9 +19,10 @@ export default class componentName extends Component {
   };
   setCurrent = tree => {
     var hash = getSearchParametersFromHash(window.location.href);
+    var search = getSearchParametersFromHRef(window.location.href);
     var that = this;
     function findCurrentLeaf(leaf, parents) {
-      if (hash.key && hash.key === leaf.key) {
+      if ((hash.key && hash.key === leaf.key) || (search.href && search.href===leaf.href )){
         var p = []
 
         parents.forEach(parent => {
@@ -76,12 +77,13 @@ export default class componentName extends Component {
         function extract(srcNode, parents) {
           
           var prop = props[srcNode.key];
-         
+         if (prop) console.log(prop.href)
           var leaf = {
             title: prop ? prop.title : srcNode.title,
             key: srcNode.key,
-            link: prop ? prop.link : srcNode.link,
+            link: srcNode.link,
             icon: prop ? prop.icon : srcNode.icon,
+            href: prop ? prop.href : null,
             parents,
             childs: []
           };
@@ -118,7 +120,7 @@ export default class componentName extends Component {
       this.state.current.leaf.parents
         ? this.state.current.leaf.parents
         : [];
-    var search = getSearchParametersFromHRef(window.location.href);
+  
 
     return (
       <div className="section-30">
@@ -139,7 +141,7 @@ export default class componentName extends Component {
               </div>
             </div>
           </div> */}
-          <div className="div-block-34" style={{paddingLeft:"10px"}}>
+          <div className="div-block-34" style={{paddingLeft:"10px",lineHeight:"32px",overflowX:"scroll"}}>
             {/* <div><a href="https://header-division-department-team.webflow.io/unit/group-technology" className="link">Group Technology &gt; </a></div>
           <div><a href="https://header-division-department-team.webflow.io/divisions/group-it" className="link">Group IT &gt; </a></div> */}
             {parents.map((parent, key) => {
@@ -159,7 +161,7 @@ export default class componentName extends Component {
 
 {current && <div >
                   
-                    <div className="html-embed-8 w-embed">
+                    <div className="html-embed-8 w-embed" style={{fontWeight:"bold"}}>
                    
                       {current.title}
                       <span className="pipe">></span>
@@ -183,8 +185,8 @@ export default class componentName extends Component {
                   </div>
                 );
               })}
-{current && hash.key && <div >
-                  <a href={current.link} className="link-block-7 w-inline-block" title={"Jump to " + current.title}>
+{current && hash.key && current.href && <div >
+                  <a href={current.href} target="_top" className="link-block-7 w-inline-block" title={"Jump to " + current.title}>
                     <div className="html-embed-8 w-embed" style={{color:"white",backgroundColor:"#aaaaaa",
                     marginLeft:"8px", borderRadius:"6px",  paddingLeft:"8px",paddingRight:"8px",cursor:"pointer"}}>
                    
@@ -200,7 +202,7 @@ Jump to
             </div>
           </div>
         </div>
-        {/* {JSON.stringify(parents)} */}
+        
       </div>
     );
   }

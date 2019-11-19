@@ -296,11 +296,11 @@
   flex: 1;
 }
 
-.section-30 {
+/* .section-30 {
   background-image: url('../images/background-bobbles.png');
   background-position: 50% 25%;
   background-size: cover;
-}
+} */
 
 .div-block-34 {
   display: -webkit-box;
@@ -328,7 +328,7 @@
 .html-embed-8 {
   color: #aaaaaa;
   text-decoration: none;
- 
+  white-space: nowrap;
 }
 
 .link-block-7 {
