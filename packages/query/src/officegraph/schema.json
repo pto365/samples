@@ -1,0 +1,158 @@
+{
+    "type": "object",
+    "properties": {
+        "data": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "@@odata.context": {
+                        "type": "string"
+                    },
+                    "createdDateTime": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "lastModifiedDateTime": {
+                        "type": "string"
+                    },
+                    "webUrl": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "businessPhones": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "givenName": {
+                        "type": "string"
+                    },
+                    "mail": {
+                        "type": "string"
+                    },
+                    "mobilePhone": {
+                        "type": "string"
+                    },
+                    "officeLocation": {
+                        "type": "string"
+                    },
+                    "surname": {
+                        "type": "string"
+                    },
+                    "userPrincipalName": {
+                        "type": "string"
+                    },
+                    "driveType": {
+                        "type": "string"
+                    },
+                    "parentReference": {
+                        "type": "object",
+                        "properties": {
+                            "driveId": {
+                                "type": "string"
+                            },
+                            "driveType": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "path": {
+                                "type": "string"
+                            }
+                        }
+                    },
+
+                   
+
+
+                    "createdBy": {
+                        "type": "object",
+                        "properties": {
+                            "user": {
+                                "type": "object",
+                                "properties": {
+                                    "displayName": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "owner": {
+                        "type": "object",
+                        "properties": {
+                            "group": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "displayName": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "quota": {
+                        "type": "object",
+                        "properties": {
+                            "deleted": {
+                                "type": "integer"
+                            },
+                            "remaining": {
+                                "type": "integer"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "total": {
+                                "type": "integer"
+                            },
+                            "used": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "@@odata.context",
+                    "createdDateTime",
+                    "description",
+                    "id",
+                    "lastModifiedDateTime",
+                    "name",
+                    "businessPhones",
+                    "displayName",
+                    "givenName",
+                    "mail",
+                    "mobilePhone",
+                    "officeLocation",
+                    "surname",
+                    "userPrincipalName",
+                    "webUrl",
+                    "driveType",
+                    "createdBy",
+                    "owner",
+                    "quota"
+                ]
+            }
+        }
+    }
+}

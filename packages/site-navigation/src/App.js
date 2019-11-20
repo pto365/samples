@@ -10,7 +10,10 @@ import {
 } from "./helpers";
 import sample from "./sample.json";
 import _ from "lodash";
-import "office-ui-fabric-core/dist/css/fabric.min.css"
+import "office-ui-fabric-core/dist/css/fabric.min.css";
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+
+initializeIcons(/* optional base url */);
 export default class componentName extends Component {
   hasChanged = e => {
     if (!this.state) return;
@@ -22,16 +25,18 @@ export default class componentName extends Component {
     var search = getSearchParametersFromHRef(window.location.href);
     var that = this;
     function findCurrentLeaf(leaf, parents) {
-      if ((hash.key && hash.key === leaf.key) || (search.href && search.href===leaf.href )){
-        var p = []
+      if (
+        (hash.key && hash.key === leaf.key) ||
+        (search.href && search.href === leaf.href)
+      ) {
+        var p = [];
 
         parents.forEach(parent => {
-          p.push(parent)
+          p.push(parent);
         });
         //p.push(leaf)
-       
-        
-        that.current = { leaf, parents:p };
+
+        that.current = { leaf, parents: p };
         return;
       }
 
@@ -75,9 +80,8 @@ export default class componentName extends Component {
         var props = json.properties;
 
         function extract(srcNode, parents) {
-          
           var prop = props[srcNode.key];
-         if (prop) console.log(prop.href)
+          if (prop) console.log(prop.href);
           var leaf = {
             title: prop ? prop.title : srcNode.title,
             key: srcNode.key,
@@ -90,7 +94,7 @@ export default class componentName extends Component {
           if (srcNode.children) {
             srcNode.children.forEach(child => {
               var ancestors = _.clone(parents);
-              ancestors.push(leaf)
+              ancestors.push(leaf);
               leaf.childs.push(extract(child, ancestors));
             });
           }
@@ -120,11 +124,12 @@ export default class componentName extends Component {
       this.state.current.leaf.parents
         ? this.state.current.leaf.parents
         : [];
-  
 
     return (
       <div className="section-30">
-        <div className="w-container" style={{maxWidth:"1244px"}}>
+        <div> 
+        <div className="expandTree"  style={{position:"fixed",top:"4px",right:"4px",backgroundColor:"#ffffff"}}><a href="#expand=1" target="_top"><i className="ms-Icon ms-Icon--MiniExpand" aria-hidden="true"></i></a>
+        </div>
           {/* <div className="div-block-31">
             <div className="div-block-32">
               <div className="domainbartitlle ms-fontSize-28">{current.title}</div>
@@ -141,7 +146,14 @@ export default class componentName extends Component {
               </div>
             </div>
           </div> */}
-          <div className="div-block-34" style={{paddingLeft:"10px",lineHeight:"32px",overflowX:"scroll"}}>
+          <div
+            className="div-block-34"
+            style={{
+              paddingLeft: "10px",
+              lineHeight: "32px",
+              overflowX: "scroll"
+            }}
+          >
             {/* <div><a href="https://header-division-department-team.webflow.io/unit/group-technology" className="link">Group Technology &gt; </a></div>
           <div><a href="https://header-division-department-team.webflow.io/divisions/group-it" className="link">Group IT &gt; </a></div> */}
             {parents.map((parent, key) => {
@@ -150,7 +162,6 @@ export default class componentName extends Component {
                 <div key={key}>
                   <a href={link} className="link-block-7 w-inline-block">
                     <div className="html-embed-8 w-embed">
-                   
                       {parent.title}
                       <span className="pipe">></span>
                     </div>
@@ -159,24 +170,28 @@ export default class componentName extends Component {
               );
             })}
 
-{current && <div >
-                  
-                    <div className="html-embed-8 w-embed" style={{fontWeight:"bold"}}>
-                   
-                      {current.title}
-                      <span className="pipe">></span>
-                    </div>
-                 
+            {current && (
+              <div>
+                <div
+                  className="html-embed-8 w-embed"
+                  style={{ fontWeight: "bold" }}
+                >
+                  {current.title}
+                  <span className="pipe">></span>
                 </div>
-
-}
+              </div>
+            )}
             {current &&
               current.childs &&
               current.childs.map((child, key) => {
                 var link = child.link ? child.link : "#key=" + child.key;
                 return (
                   <div key={key}>
-                    <a href={link} className="link-block-7 w-inline-block">
+                    <a
+                      href={link}
+                      target="_self"
+                      className="link-block-7 w-inline-block"
+                    >
                       <div className="html-embed-8 w-embed">
                         {key === 0 ? "" : <span className="pipe">|</span>}
                         {child.title}
@@ -185,24 +200,34 @@ export default class componentName extends Component {
                   </div>
                 );
               })}
-{current && hash.key && current.href && <div >
-                  <a href={current.href} target="_top" className="link-block-7 w-inline-block" title={"Jump to " + current.title}>
-                    <div className="html-embed-8 w-embed" style={{color:"white",backgroundColor:"#aaaaaa",
-                    marginLeft:"8px", borderRadius:"6px",  paddingLeft:"8px",paddingRight:"8px",cursor:"pointer"}}>
-                   
-Jump to 
-                      
-                    </div>
-                  </a>
-                </div>
-
-}
-            <div>
-             
-            </div>
+            {current && hash.key && current.href && (
+              <div>
+                <a
+                  href={current.href}
+                  target="_top"
+                  className="link-block-7 w-inline-block"
+                  title={"Jump to " + current.title}
+                >
+                  <div
+                    className="html-embed-8 w-embed"
+                    style={{
+                      color: "white",
+                      backgroundColor: "#aaaaaa",
+                      marginLeft: "8px",
+                      borderRadius: "6px",
+                      paddingLeft: "8px",
+                      paddingRight: "8px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Jump to
+                  </div>
+                </a>
+              </div>
+            )}
+            <div></div>
           </div>
         </div>
-        
       </div>
     );
   }
