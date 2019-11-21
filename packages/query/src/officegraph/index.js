@@ -46,7 +46,15 @@ module.exports = function (context, req) {
           var folder = params.length > 1 ? params[1] : '/'
           graph.getGroupDocuments(token, groupId, folder, processResult)
           break;
+        case 'pages':
+            var params = data.query.split("|")
+            var host = params.length > 0 ? params[0] : ''
+            var site = params.length > 1 ? params[1] : ''
+            
+            graph.getPages(token, host, site, processResult)
+            break;            
         case 'sharepointlist':
+        
           var params = data.query.split("|")
           var host = params.length > 0 ? params[0] : ''
           var site = params.length > 1 ? params[1] : ''
@@ -54,7 +62,7 @@ module.exports = function (context, req) {
           var listfilter = params.length > 3 ? params[3] : ''
           var itemfilter = params.length > 4 ? params[4] : ''
           graph.getSharePointList(token, host, site, list, listfilter, itemfilter, processResult)
-          break;          
+          break;        
         case 'getgrouprootfolders':
           var params = data.query.split("|")
           var groupId = params.length > 0 ? params[0] : ''
@@ -302,6 +310,25 @@ graph.getSharePointList = (token, host, site, list, listfilter, itemfilter, cb) 
   })
 }
 
+graph.getPages = (token, host, site,  cb) => {
+  get(token, `https://graph.microsoft.com/v1.0/sites/${host}:${site}`, function (e, site) {
+  if (e) return cb(e)
+
+
+  get(token, `https://graph.microsoft.com/beta/sites/${site.id}/pages?$select=id`, function (e, items) {
+    if (e) return cb(e)
+  
+  
+     return cb(null, items)
+    
+   
+  
+    })
+  
+ 
+
+  })
+}
 graph.readGroupMembers = function (token, groupId, cb) {
   get(token, 'https://graph.microsoft.com/beta/groups/' + groupId + '/members?$select=mail,department,displayName,country,accountEnabled,userPrincipalName,givenName,surname,id', cb)
 };
