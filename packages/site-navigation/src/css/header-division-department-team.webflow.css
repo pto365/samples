@@ -381,3 +381,8 @@
   color: #e0e0e0;
   text-decoration: underline;
 }
+
+
+.ms-fontSize-18 {
+  font-size: 18px !important;
+}

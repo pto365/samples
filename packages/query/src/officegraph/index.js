@@ -315,7 +315,7 @@ graph.getPages = (token, host, site,  cb) => {
   if (e) return cb(e)
 
 
-  get(token, `https://graph.microsoft.com/beta/sites/${site.id}/pages?$select=id`, function (e, items) {
+  get(token, `https://graph.microsoft.com/beta/sites/${site.id}/pages`, function (e, items) {
     if (e) return cb(e)
   
   

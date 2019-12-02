@@ -12,8 +12,12 @@ import sample from "./sample.json";
 import _ from "lodash";
 import "office-ui-fabric-core/dist/css/fabric.min.css";
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-
+import { FontSizes } from '@uifabric/fluent-theme/lib/fluent/FluentType';
+import { loadTheme } from 'office-ui-fabric-react';
 initializeIcons(/* optional base url */);
+
+
+
 export default class componentName extends Component {
   hasChanged = e => {
     if (!this.state) return;
@@ -104,6 +108,7 @@ export default class componentName extends Component {
         var tree = extract(srcTree[0], []);
 
         this.setState({ json, tree });
+        debugger
         this.setCurrent(tree);
       });
 
@@ -126,26 +131,11 @@ export default class componentName extends Component {
         : [];
 
     return (
-      <div className="section-30">
+      <div className="section-30 ms-Fabric ms-fontSize-18 "  >
         <div> 
         <div className="expandTree"  style={{position:"fixed",top:"4px",right:"4px",backgroundColor:"#ffffff"}}><a href="#expand=1" target="_top"><i className="ms-Icon ms-Icon--MiniExpand" aria-hidden="true"></i></a>
         </div>
-          {/* <div className="div-block-31">
-            <div className="div-block-32">
-              <div className="domainbartitlle ms-fontSize-28">{current.title}</div>
-            </div>
-            <div className="div-block-33">
-              <div className="div-block-28">
-                <div className="w-dyn-list">
-                  <div className="w-dyn-items">
-                    <div className="collection-item-4 w-dyn-item">
-                      <img height="24" src="" alt="" className="image"></img>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
+    
           <div
             className="div-block-34"
             style={{
@@ -154,14 +144,12 @@ export default class componentName extends Component {
               overflowX: "scroll"
             }}
           >
-            {/* <div><a href="https://header-division-department-team.webflow.io/unit/group-technology" className="link">Group Technology &gt; </a></div>
-          <div><a href="https://header-division-department-team.webflow.io/divisions/group-it" className="link">Group IT &gt; </a></div> */}
             {parents.map((parent, key) => {
               var link = parent.link ? parent.link : "#key=" + parent.key;
               return (
                 <div key={key}>
                   <a href={link} className="link-block-7 w-inline-block">
-                    <div className="html-embed-8 w-embed">
+                    <div className="html-embed-8 w-embed " >
                       {parent.title}
                       <span className="pipe">></span>
                     </div>
@@ -192,7 +180,7 @@ export default class componentName extends Component {
                       target="_self"
                       className="link-block-7 w-inline-block"
                     >
-                      <div className="html-embed-8 w-embed">
+                      <div className="html-embed-8 w-embed ">
                         {key === 0 ? "" : <span className="pipe">|</span>}
                         {child.title}
                       </div>

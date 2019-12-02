@@ -5,6 +5,6 @@ var context = require("./context")
 func(context, {
     body: {
         action: "sharepointlist",
-        query: "christianiabpos.sharepoint.com|/sites/intranets-location|Area"
+        query: "christianiabpos.sharepoint.com|/sites/intranets-location|Navigation"
     }
 });
