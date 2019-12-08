@@ -32,7 +32,7 @@ const Tags = props =>{
   
   if ( props && props.references ){
     return (
-      <div style={{display:"flex"}}>
+      <div className="tags" style={{display:"flex"}}>
         {props.references.map(group => {
         
           return <div style={{ padding:"4px",margin:"4px", backgroundColor: group.color,color:group.textColor }}>
@@ -74,7 +74,7 @@ const AppSuperTile = props => {
         <div>{tile.title}</div>
         <Tags references={tile.references}/>
         <div style={{ textAlign: "center", height: 120, margin: 20 }}>
-          <img style={{ height: "auto", width: 120 }} src={tile.icon} />
+          <img style={{ height: "auto", width: 80 }} src={tile.icon} />
         </div>
 
         <div style={{ maxHeight: 80, height: 80, overflow: "auto" }}>
