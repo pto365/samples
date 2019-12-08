@@ -224,7 +224,7 @@ AppFullSizeTile.propTypes = {
 export default function App() {
   const [titlegraphics, setTitlegraphics] = useState("");
   const [tiles, setTiles] = useState([]);
-  const [isZoomed, setIsZoomed] = useState(true);
+  const [isZoomed, setIsZoomed] = useState(false);
   const [currentTile, setCurrentTile] = useState(null);
   useEffect(() => {
     var search = getSearchParametersFromHRef(window.location.href);
