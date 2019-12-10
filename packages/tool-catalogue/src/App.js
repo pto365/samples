@@ -24,202 +24,9 @@ import "./css/swimlane-process-map.webflow.css";
 import sample from "./sample.json";
 import axios from "axios";
 import _ from "lodash";
-import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 
-import PropTypes from "prop-types";
-
-const Tags = props =>{
-  
-  if ( props && props.references ){
-    return (
-      <div className="tags" style={{display:"flex"}}>
-        {props.references.map(group => {
-        
-          return <div style={{ padding:"4px",margin:"4px", backgroundColor: group.color,color:group.textColor }}>
-            {group.title}
-          </div>;
-        })}
-      </div>
-    )}
-    else{return null}
-  
-}
-Tags.propTypes = {
-  references: PropTypes.array
- 
-};
-const AppSuperTile = props => {
-  var tile = props.tile ? props.tile : {};
-  const [html, setHtml] = useState("");
-
-  return (
-    <div
-      style={{
-        margin: 10,
-        padding: 10,
-        backgroundColor: tile.color,
-        color: tile.textcolor,
-        width: 300,
-        height: 300,
-        maxHeight: 300,
-        overflow: "auto"
-      }}
-    >
-      <div
-        style={{ cursor: "pointer" }}
-        onClick={() => {
-          if (props.onClick) props.onClick(tile);
-        }}
-      >
-        <div>{tile.title}</div>
-        <Tags references={tile.references}/>
-        <div style={{ textAlign: "center", height: 120, margin: 20 }}>
-          <img style={{ height: "auto", width: 80 }} src={tile.icon} />
-        </div>
-
-        <div style={{ maxHeight: 80, height: 80, overflow: "auto" }}>
-          {tile.inShort}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          {tile.jumpto && (
-            <a
-              style={{ height: 24 }}
-              className="button"
-              href={tile.jumpto}
-              target="_blank"
-            >
-              Jump to
-            </a>
-          )}
-          {tile.externalArticle && (
-            <a
-              style={{ height: 24 }}
-              className="button"
-              href={tile.externalArticle}
-              target="_blank"
-            >
-              Details
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-AppSuperTile.propTypes = {
-  tile: Object,
-  onClose: PropTypes.func
-};
-const AppFullSizeTile = props => {
-  var tile = props.tile ? props.tile : {};
-  const [html, setHtml] = useState("");
-  const [error, setError] = useState(null);
-  useEffect(() => {
-    if (tile.contentRef) {
-      axios
-        .get(tile.contentRef)
-        .then(result => {
-          var converter = new QuillDeltaToHtmlConverter(result.data.ops);
-          setHtml(converter.convert());
-        })
-        .catch(error => {
-          if (error.response.status !== 404) {
-            setError(error.message);
-          }
-        });
-    }
-  });
-
-  return (
-    <>
-      {error && <div>{error}</div>}
-      <div
-        onClick={props.onClose}
-        style={{
-          backgroundColor: tile.color,
-          color: tile.textcolor,
-          width: "100vw",
-          height: "100vh",
-
-          overflow: "auto"
-        }}
-      >
-        <div>
-          <div style={{ display: "flex" }}>
-            <div>
-              {" "}
-              <img
-                style={{ margin: "1vh", height: "10vh", width: "auto" }}
-                src={tile.icon}
-              />
-            </div>
-            <div style={{ height: "10vh", width: "auto" }}>
-              <div
-                className="fullSizeHeading"
-                style={{
-                  padding: "3vh",
-                  fontSize: "5vh",
-                  textOverflow: "nowrap",
-                  whiteSpace: "no-wrap"
-                }}
-              >
-                {tile.title}
-              </div>
-              <div
-                className="fullSizeDescription"
-                style={{ paddingLeft: "3vh", fontSize: "3vh" }}
-              >
-                {tile.inShort}
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              height: "80vh",
-              overflow: "auto",
-              backgroundColor: "#ffffff",
-              color: "#000000",
-              padding: "20px"
-            }}
-          >
-<Tags references={tile.references}/>
-            <div dangerouslySetInnerHTML={{ __html: html }}></div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            {tile.jumpto && (
-              <a
-                style={{ height: 24 }}
-                className="button"
-                href={tile.jumpto}
-                target="_blank"
-              >
-                Jump to
-              </a>
-            )}
-            {tile.externalArticle && (
-              <a
-                style={{ height: 24 }}
-                className="button"
-                href={tile.externalArticle}
-                target="_blank"
-              >
-                Details
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
-
-AppFullSizeTile.propTypes = {
-  tile: Object,
-  onClick: PropTypes.func
-};
+import { AppSuperTile } from "./AppSuperTile";
+import { AppFullSizeTile } from "./AppFullSizeTile";
 
 export default function App() {
   const [titlegraphics, setTitlegraphics] = useState("");
@@ -231,7 +38,7 @@ export default function App() {
 
     var href = search.src
       ? search.src
-      : "https://api.jumpto365.com/table/nets.eu/test";
+      : "https://api.jumpto365.com/table/nets.eu/DEX";
     axios.get(href).then(({ data }) => {
       setTitlegraphics(data.titlegraphics);
       var tiles = [];
@@ -284,7 +91,7 @@ export default function App() {
         }}
         src={titlegraphics}
       ></img>
-      {isZoomed && (
+       {isZoomed && (
         <div>
           <AppFullSizeTile
             tile={currentTile ? currentTile : tiles ? tiles[0] : null}
@@ -308,7 +115,7 @@ export default function App() {
             );
           })}
         </div>
-      )}
+      )} 
     </>
   );
 }
