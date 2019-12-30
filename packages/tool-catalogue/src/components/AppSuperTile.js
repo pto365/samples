@@ -6,7 +6,7 @@ export const AppSuperTile = props => {
   const [html, setHtml] = useState("");
  
   return (<>
-  <div style={{border:"1px dashed grey",margin:10}}>
+  <div style={{border:"0px dashed grey",margin:10}}>
      
   <div style={{
     margin: 10,
@@ -35,7 +35,7 @@ export const AppSuperTile = props => {
 
     </div>
   </div>
-  <Tags references={tile && tile.references ? tile.references : []} /> 
+  <Tags references={tile.references} />
   <div style={{ display: "flex", justifyContent: "flex-end" }}>
         {tile.jumpto && (<a style={{ height: 24 }} className="button" href={tile.jumpto} target="_blank">
           Jump to

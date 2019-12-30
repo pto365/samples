@@ -2,6 +2,7 @@
   "name": "tool-catalogue",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://apps.ztickybar.com/tool-catalogue",
   "dependencies": {
     "@uifabric/fluent-theme": "^7.1.4",
     "axios": "^0.19.0",
@@ -11,13 +12,26 @@
     "quill-delta-to-html": "^0.11.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.2.0"
+    "react-scripts": "3.2.0",
+    "dexie":"^2.0.4",
+    "dexie-observable":"^1.0.0-beta.5",
+    "dexie-syncable": "^1.0.0-beta.4",
+    "msal": "*1.2.0",
+    "https":"^1.0.0",
+    "xlsx":"^0.15.4",
+    "mammoth":"^1.4.9",
+    "@microsoft/microsoft-graph-client":"^2.0.0",
+    "string-to-stream":"^3.0.1"
+  },
+  "devDependencies": {
+    "gh-pages":"^2.1.1"
   },
   "scripts": {
     "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "react-scripts build && gh-pages -b master -d build -r https://github.com/ztickybar/tool-catalogue"
   },
   "eslintConfig": {
     "extends": "react-app"

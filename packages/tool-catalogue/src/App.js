@@ -25,20 +25,59 @@ import sample from "./sample.json";
 import axios from "axios";
 import _ from "lodash";
 
-import { AppSuperTile } from "./AppSuperTile";
-import { AppFullSizeTile } from "./AppFullSizeTile";
+import { AppSuperTile } from "./components/AppSuperTile";
+import { AppFullSizeTile } from "./components/AppFullSizeTile";
+import {
+  TextField,
+  MaskedTextField
+} from "office-ui-fabric-react/lib/TextField";
+import { initializeIcons } from "@uifabric/icons";
+import db from "./db";
+import OfficeGraph from "./helpers/OfficeGraph";
+initializeIcons();
 
 export default function App() {
   const [titlegraphics, setTitlegraphics] = useState("");
+  const [filter, setFilter] = useState("");
   const [tiles, setTiles] = useState([]);
+  const [myTiles, setMyTiles] = useState([]);
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentTile, setCurrentTile] = useState(null);
+  const [me, setMe] = useState({});
+  const [ztickyFolder, setZtickyFolder] = useState({});
+
+  const addTile = tile => {
+    OfficeGraph.addTile(ztickyFolder,tile)
+    // db.table('myTiles')
+    //   .add(tile)
+    //   .then((id) => {
+    //     const newList = [...myTiles, Object.assign({}, tile, { id })];
+    //     setMyTiles(newList)
+    //   });
+  };
+
   useEffect(() => {
+    // db.table("myTiles").toArray().then(tiles=>{setMyTiles(tiles)})
+    OfficeGraph.initStorage()
+      .then(ztickyFolder => {
+        setZtickyFolder(ztickyFolder)
+      })
+      .catch(error => {
+        debugger;
+      });
+    OfficeGraph.me()
+      .then(userDetails => {
+        setMe(userDetails);
+        window.document.title = userDetails.displayName + " Tools";
+      })
+      .catch(error => {
+        debugger;
+      });
     var search = getSearchParametersFromHRef(window.location.href);
 
     var href = search.src
       ? search.src
-      : "https://api.jumpto365.com/table/nets.eu/DEX";
+      : "https://api.jumpto365.com/table/hexatown.com/PTO365";
     axios.get(href).then(({ data }) => {
       setTitlegraphics(data.titlegraphics);
       var tiles = [];
@@ -91,7 +130,7 @@ export default function App() {
         }}
         src={titlegraphics}
       ></img>
-       {isZoomed && (
+      {isZoomed && (
         <div>
           <AppFullSizeTile
             tile={currentTile ? currentTile : tiles ? tiles[0] : null}
@@ -102,20 +141,52 @@ export default function App() {
         </div>
       )}
       {!isZoomed && (
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-          {tiles.map(tile => {
-            return (
-              <AppSuperTile
-                tile={tile}
-                onClick={tile => {
-                  setCurrentTile(tile);
-                  setIsZoomed(true);
-                }}
-              />
-            );
-          })}
-        </div>
-      )} 
+        <>
+          <div style={{ padding: "20px" }}>
+            <TextField
+              label="Filter"
+              value={filter}
+              onChange={(e, newValue) => {
+                setFilter(newValue);
+              }}
+              placeholder="Filter the list of apps"
+              iconProps={{ iconName: "Filter" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {tiles.map(tile => {
+              if (filter) {
+                var match =
+                  tile.title &&
+                  tile.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+                if (!match)
+                  match =
+                    tile.inShort &&
+                    tile.inShort.toLowerCase().indexOf(filter.toLowerCase()) !==
+                      -1;
+                if (!match)
+                  match =
+                    tile.subTitle &&
+                    tile.subTitle
+                      .toLowerCase()
+                      .indexOf(filter.toLowerCase()) !== -1;
+                if (!match) return null;
+              }
+              return (
+                <AppSuperTile
+                  filter={filter}
+                  tile={tile}
+                  onClick={tile => {
+                    addTile(tile)
+                    setCurrentTile(tile);
+                    setIsZoomed(true);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
     </>
   );
 }
