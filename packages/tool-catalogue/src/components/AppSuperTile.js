@@ -47,6 +47,6 @@ export const AppSuperTile = props => {
   </div></>);
 };
 AppSuperTile.propTypes = {
-  tile: Object,
+  tile: PropTypes.object,
   onClose: PropTypes.func
 };

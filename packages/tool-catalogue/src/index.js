@@ -4,9 +4,9 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import "./authenticate" // autonom library - will force signin
-import "./helpers/OfficeGraph"
-
+import {login} from "./authenticate" // autonom library - will force signin
+//import "./helpers/OfficeGraph"
+//login()
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

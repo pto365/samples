@@ -34,6 +34,11 @@ import {
 import { initializeIcons } from "@uifabric/icons";
 import db from "./db";
 import OfficeGraph from "./helpers/OfficeGraph";
+import {
+  PivotItem,
+  IPivotItemProps,
+  Pivot
+} from "office-ui-fabric-react/lib/Pivot";
 initializeIcons();
 
 export default function App() {
@@ -45,9 +50,10 @@ export default function App() {
   const [currentTile, setCurrentTile] = useState(null);
   const [me, setMe] = useState({});
   const [ztickyFolder, setZtickyFolder] = useState({});
+  const [myTools, setMyTools] = useState([]);
 
   const addTile = tile => {
-    OfficeGraph.addTile(ztickyFolder,tile)
+    OfficeGraph.addTile(ztickyFolder, tile);
     // db.table('myTiles')
     //   .add(tile)
     //   .then((id) => {
@@ -59,8 +65,11 @@ export default function App() {
   useEffect(() => {
     // db.table("myTiles").toArray().then(tiles=>{setMyTiles(tiles)})
     OfficeGraph.initStorage()
-      .then(ztickyFolder => {
-        setZtickyFolder(ztickyFolder)
+      .then(async ztickyFolder => {
+        setZtickyFolder(ztickyFolder);
+        var myTools = await OfficeGraph.getMyTools(ztickyFolder)
+        
+        setMyTools(myTools)
       })
       .catch(error => {
         debugger;
@@ -149,42 +158,77 @@ export default function App() {
               onChange={(e, newValue) => {
                 setFilter(newValue);
               }}
-              placeholder="Filter the list of apps"
+              placeholder="Filter the list of tools"
               iconProps={{ iconName: "Filter" }}
             />
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            {tiles.map(tile => {
-              if (filter) {
-                var match =
-                  tile.title &&
-                  tile.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
-                if (!match)
-                  match =
-                    tile.inShort &&
-                    tile.inShort.toLowerCase().indexOf(filter.toLowerCase()) !==
-                      -1;
-                if (!match)
-                  match =
-                    tile.subTitle &&
-                    tile.subTitle
-                      .toLowerCase()
-                      .indexOf(filter.toLowerCase()) !== -1;
-                if (!match) return null;
-              }
-              return (
-                <AppSuperTile
-                  filter={filter}
-                  tile={tile}
-                  onClick={tile => {
-                    addTile(tile)
-                    setCurrentTile(tile);
-                    setIsZoomed(true);
-                  }}
-                />
-              );
-            })}
-          </div>
+
+          <Pivot style={{ padding: "20px" }}>
+            <PivotItem headerText="My Tools" itemCount={myTools.length}>
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {myTools.map(folder => {
+                  var tile = folder.tile ? folder.tile: {
+                    title:folder.name,
+                    color: "#dddddd"
+                  }
+                  return (
+                    <AppSuperTile
+                     
+                      tile={tile}
+                      onClick={tile => {
+                        // addTile(tile);
+                        // setCurrentTile(tile);
+                        // setIsZoomed(true);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+
+
+            </PivotItem>
+            <PivotItem headerText="Site Tools">
+              
+              <h3>Which tools do you find good for this site?</h3>
+              </PivotItem>
+            <PivotItem headerText="Global Tools" itemCount={tiles.length}>
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {tiles.map(tile => {
+                  if (filter) {
+                    var match =
+                      tile.title &&
+                      tile.title.toLowerCase().indexOf(filter.toLowerCase()) !==
+                        -1;
+                    if (!match)
+                      match =
+                        tile.inShort &&
+                        tile.inShort
+                          .toLowerCase()
+                          .indexOf(filter.toLowerCase()) !== -1;
+                    if (!match)
+                      match =
+                        tile.subTitle &&
+                        tile.subTitle
+                          .toLowerCase()
+                          .indexOf(filter.toLowerCase()) !== -1;
+                    if (!match) return null;
+                  }
+                  return (
+                    <AppSuperTile
+                      filter={filter}
+                      tile={tile}
+                      onClick={tile => {
+                        addTile(tile);
+                        setCurrentTile(tile);
+                        setIsZoomed(true);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            </PivotItem>
+          </Pivot>
         </>
       )}
     </>

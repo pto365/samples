@@ -4,7 +4,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 
 import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
-var toStream = require('string-to-stream')
+import axios from "axios";
 // Configuration options for MSAL @see https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/MSAL.js-1.0.0-api-release#configuration-options
 // const msalConfig = {
 //     auth: {
@@ -21,7 +21,9 @@ var replyUrl =
   window.location.protocol +
   "//" +
   window.location.hostname +
-  (window.location.port !== 80 && window.location.port !== 443
+  (window.location.port !== 80 &&
+  window.location.port !== 443 &&
+  window.location.port !== ""
     ? ":" + window.location.port
     : "") +
   window.location.pathname;
@@ -98,41 +100,94 @@ function initStorage() {
     }
   });
 }
+
+function getMyTools(ztickyFolder) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const client = getClient();
+      let folders = await client
+        .api(`/me/drive/items/${ztickyFolder.id}/children`)
+        .get();
+
+      var queueLength = 0;
+
+      if (folders.value.length === 0) return resolve(folders.value);
+
+      folders.value.forEach(async folder => {
+        queueLength++;
+        folder.tile = await getMyTool(folder);
+        
+        queueLength--;
+        if (queueLength === 0) {
+          return resolve(folders.value);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+function getMyTool(toolFolder) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      
+      const client = getClient();
+      let tile = await client
+        .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
+        .get();
+         axios.get(tile["@microsoft.graph.downloadUrl"]).then(response=>{
+           
+           resolve(response.data);
+         })
+        
+     
+    } catch (error) {
+      debugger
+      reject(error);
+    }
+  });
+}
 function addTile(ztickyFolder, tile) {
   return new Promise(async (resolve, reject) => {
     const client = getClient();
-    ;
     try {
       const driveItem = {
         name: tile.title,
         folder: {},
         "@microsoft.graph.conflictBehavior": "replace"
       };
-      
+
       let folder = await client
         .api(`/me/drive/items/${ztickyFolder.id}/children`)
         .post(driveItem);
-    
-       const stream = toStream(JSON.stringify(tile))
-        const fileItem = {
-          name: tile.title,
-          folder: {},
-          "@microsoft.graph.conflictBehavior": "replace"
-        };
 
       let file = await client
         .api(`/me/drive/items/${folder.id}:/tile.json:/content`)
         .put(tile);
 
-      debugger
+      axios
+        .request({
+          responseType: "arraybuffer",
+          url: tile.icon,
+          method: "get"
+        })
+        .then(async response => {
+          await client
+            .api(`/me/drive/items/${folder.id}:/image.png:/content`)
+            .put(response.data);
+        })
+        .catch(error => {
+          debugger;
+        });
+
       return resolve(file);
     } catch (error) {
-      debugger
+      debugger;
       return reject(error);
     }
   });
 }
-export default { me, initStorage, addTile };
+export default { me, initStorage, addTile, getMyTools };
 
 // var PTO365 = {
 //   user: msalInstance.getAccount()
