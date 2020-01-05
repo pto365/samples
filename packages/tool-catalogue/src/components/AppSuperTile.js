@@ -6,7 +6,7 @@ export const AppSuperTile = props => {
   const [html, setHtml] = useState("");
  
   return (<>
-  <div style={{border:"0px dashed grey",margin:10}}>
+  <div style={{border:"0px dashed grey",margin:10,maxWidth:"300px"}}>
      
   <div style={{
     margin: 10,
@@ -23,24 +23,24 @@ export const AppSuperTile = props => {
         props.onClick(tile);
     }}>
       <div>{tile.title}</div>
-   
-      <div style={{ textAlign: "center", height: 120, margin: 20 }}>
+      
+      <div style={{ textAlign: "center", margin: 20, marginTop:40, height: 120 }}>
         <img style={{ height: "auto", width: 80 }} src={tile.icon} />
       </div>
 
-      <div style={{ maxHeight: 80, height: 80, overflow: "auto" }}>
+      {/* <div style={{ maxHeight: 80, height: 80, overflow: "auto" }}>
         {tile.inShort}
-      </div>
-
+      </div> */}
+      <Tags references={tile.references} />
 
     </div>
   </div>
-  <Tags references={tile.references} />
+  
   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        {tile.jumpto && (<a style={{ height: 24 }} className="button" href={tile.jumpto} target="_blank">
+        {tile.jumpto && (<a style={{ height: 24 }} className="button" href={tile.jumpto} rel="noopener noreferrer"  target="_blank">
           Jump to
             </a>)}
-        {tile.externalArticle && (<a style={{ height: 24 }} className="button" href={tile.externalArticle} target="_blank">
+        {tile.externalArticle && (<a style={{ height: 24 }} className="button" href={tile.externalArticle} rel="noopener noreferrer"  target="_blank">
           Details
             </a>)}
       </div>

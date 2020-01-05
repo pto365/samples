@@ -21,37 +21,33 @@ import "./App.css";
 import "./css/normalize.css";
 import "./css/webflow.css";
 import "./css/swimlane-process-map.webflow.css";
-import sample from "./sample.json";
 import axios from "axios";
 import _ from "lodash";
 
 import { AppSuperTile } from "./components/AppSuperTile";
 import { AppFullSizeTile } from "./components/AppFullSizeTile";
-import {
-  TextField,
-  MaskedTextField
-} from "office-ui-fabric-react/lib/TextField";
+import { TextField } from "office-ui-fabric-react/lib/TextField";
 import { initializeIcons } from "@uifabric/icons";
-import db from "./db";
+
 import OfficeGraph from "./helpers/OfficeGraph";
-import {
-  PivotItem,
-  IPivotItemProps,
-  Pivot
-} from "office-ui-fabric-react/lib/Pivot";
+import { PivotItem, Pivot } from "office-ui-fabric-react/lib/Pivot";
+import { ViewErrors } from "./components/ViewErrors";
+import { ViewTeams } from "./components/ViewTeams";
 initializeIcons();
 
 export default function App() {
   const [titlegraphics, setTitlegraphics] = useState("");
   const [filter, setFilter] = useState("");
   const [tiles, setTiles] = useState([]);
-  const [myTiles, setMyTiles] = useState([]);
+
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentTile, setCurrentTile] = useState(null);
   const [me, setMe] = useState({});
   const [ztickyFolder, setZtickyFolder] = useState({});
   const [myTools, setMyTools] = useState([]);
-
+  const [ztickyRef, setZtickyRef] = useState("");
+  const [errors, setErrors] = useState([]);
+  const [memberships, setMemberships] = useState([]);
   const addTile = tile => {
     OfficeGraph.addTile(ztickyFolder, tile);
     // db.table('myTiles')
@@ -64,26 +60,20 @@ export default function App() {
 
   useEffect(() => {
     // db.table("myTiles").toArray().then(tiles=>{setMyTiles(tiles)})
-    OfficeGraph.initStorage()
-      .then(async ztickyFolder => {
-        setZtickyFolder(ztickyFolder);
-        var myTools = await OfficeGraph.getMyTools(ztickyFolder)
-        
-        setMyTools(myTools)
-      })
-      .catch(error => {
-        debugger;
-      });
+    initGraph();
     OfficeGraph.me()
       .then(userDetails => {
         setMe(userDetails);
         window.document.title = userDetails.displayName + " Tools";
       })
       .catch(error => {
-        debugger;
+        errors.push({ context: "OfficeGraph.me()", error });
+        setErrors(errors);
       });
     var search = getSearchParametersFromHRef(window.location.href);
-
+    if (search.ztickyref) {
+      setZtickyRef(search.ztickyref);
+    }
     var href = search.src
       ? search.src
       : "https://api.jumpto365.com/table/hexatown.com/PTO365";
@@ -126,6 +116,66 @@ export default function App() {
       setTiles(_.sortBy(tiles, ["title", "href"]));
     });
   }, []);
+  async function initGraph(refresh) {
+    await OfficeGraph.initStorage();
+    var cachedMemberships = sessionStorage.getItem("memberships")
+    if (cachedMemberships)
+    {
+      setMemberships(JSON.parse(cachedMemberships) )
+    }
+    else{
+    OfficeGraph.teamMemberships().then(memberships=>{
+      sessionStorage.setItem("memberships",JSON.stringify( memberships))
+      setMemberships(memberships)
+    })
+    .catch(error => {
+      errors.push({ context: "OfficeGraph.teamMemberships()", error });
+      setErrors(errors);
+    });
+  }
+    OfficeGraph.initTileStorage()
+      .then(async ztickyFolder => {
+        setZtickyFolder(ztickyFolder);
+        var myTools = await OfficeGraph.getMyTools(ztickyFolder, refresh);
+        setMyTools(myTools);
+      })
+      .catch(error => {
+        errors.push({ context: "OfficeGraph.initStorage()", error });
+        setErrors(errors);
+      });
+  }
+
+  function matchFilter(tile) {
+    var match =
+      tile.title &&
+      tile.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+    if (!match)
+      match =
+        tile.inShort &&
+        tile.inShort.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+    if (!match)
+      match =
+        tile.subTitle &&
+        tile.subTitle.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+
+    return match;
+  }
+  var filteredTiles = !filter ? tiles : [];
+  var filteredMyTools = !filter ? myTools : [];
+  var filteredMemberShips = !filter ? memberships : [];
+  if (filter) {
+    tiles.forEach(tile => {
+      if (matchFilter(tile)) {
+        filteredTiles.push(tile);
+      }
+    });
+    myTools.forEach(folder => {
+      if (matchFilter(folder.tile)) {
+        filteredMyTools.push(folder);
+      }
+    });
+   
+  }
 
   return (
     <>
@@ -164,58 +214,55 @@ export default function App() {
           </div>
 
           <Pivot style={{ padding: "20px" }}>
-            <PivotItem headerText="My Tools" itemCount={myTools.length}>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {myTools.map(folder => {
-                  var tile = folder.tile ? folder.tile: {
-                    title:folder.name,
-                    color: "#dddddd"
-                  }
-                  return (
-                    <AppSuperTile
-                     
-                      tile={tile}
-                      onClick={tile => {
-                        // addTile(tile);
-                        // setCurrentTile(tile);
-                        // setIsZoomed(true);
-                      }}
-                    />
-                  );
-                })}
+            <PivotItem headerText="My Tools" itemCount={filteredMyTools.length}>
+              <div>
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  {filteredMyTools.map((folder, key) => {
+                    var tile = folder.tile
+                      ? folder.tile
+                      : {
+                          title: folder.name,
+                          color: "#dddddd"
+                        };
+                    return (
+                      <AppSuperTile
+                        key={key}
+                        tile={tile}
+                        onClick={tile => {
+                          // addTile(tile)
+                          setCurrentTile(tile);
+                          setIsZoomed(true);
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <i
+                  class="ms-Icon ms-Icon--Refresh"
+                  onClick={() => {
+                    initGraph(true);
+                  }}
+                  aria-hidden="true"
+                ></i>
               </div>
-
-
-
+            </PivotItem>
+            <PivotItem headerText="Team Tools" itemCount={memberships.length}>
+              
+             <ViewTeams memberShips={memberships}/>
             </PivotItem>
             <PivotItem headerText="Site Tools">
-              
               <h3>Which tools do you find good for this site?</h3>
-              </PivotItem>
-            <PivotItem headerText="Global Tools" itemCount={tiles.length}>
+              <div>{ztickyRef}</div>
+            </PivotItem>
+            <PivotItem
+              headerText="Global Tools"
+              itemCount={filteredTiles.length}
+            >
               <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {tiles.map(tile => {
-                  if (filter) {
-                    var match =
-                      tile.title &&
-                      tile.title.toLowerCase().indexOf(filter.toLowerCase()) !==
-                        -1;
-                    if (!match)
-                      match =
-                        tile.inShort &&
-                        tile.inShort
-                          .toLowerCase()
-                          .indexOf(filter.toLowerCase()) !== -1;
-                    if (!match)
-                      match =
-                        tile.subTitle &&
-                        tile.subTitle
-                          .toLowerCase()
-                          .indexOf(filter.toLowerCase()) !== -1;
-                    if (!match) return null;
-                  }
+                {filteredTiles.map((tile, key) => {
                   return (
                     <AppSuperTile
+                      key={key}
                       filter={filter}
                       tile={tile}
                       onClick={tile => {
@@ -227,6 +274,12 @@ export default function App() {
                   );
                 })}
               </div>
+            </PivotItem>
+            <PivotItem
+              headerText="Errors"
+              itemCount={errors.length}
+            >
+              <ViewErrors errors={errors}/>
             </PivotItem>
           </Pivot>
         </>
