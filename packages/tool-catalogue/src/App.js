@@ -118,21 +118,20 @@ export default function App() {
   }, []);
   async function initGraph(refresh) {
     await OfficeGraph.initStorage();
-    var cachedMemberships = sessionStorage.getItem("memberships")
-    if (cachedMemberships)
-    {
-      setMemberships(JSON.parse(cachedMemberships) )
+    var cachedMemberships = sessionStorage.getItem("memberships");
+    if (cachedMemberships) {
+      setMemberships(JSON.parse(cachedMemberships));
+    } else {
+      OfficeGraph.teamMemberships()
+        .then(memberships => {
+          sessionStorage.setItem("memberships", JSON.stringify(memberships));
+          setMemberships(memberships);
+        })
+        .catch(error => {
+          errors.push({ context: "OfficeGraph.teamMemberships()", error });
+          setErrors(errors);
+        });
     }
-    else{
-    OfficeGraph.teamMemberships().then(memberships=>{
-      sessionStorage.setItem("memberships",JSON.stringify( memberships))
-      setMemberships(memberships)
-    })
-    .catch(error => {
-      errors.push({ context: "OfficeGraph.teamMemberships()", error });
-      setErrors(errors);
-    });
-  }
     OfficeGraph.initTileStorage()
       .then(async ztickyFolder => {
         setZtickyFolder(ztickyFolder);
@@ -174,7 +173,6 @@ export default function App() {
         filteredMyTools.push(folder);
       }
     });
-   
   }
 
   return (
@@ -246,10 +244,11 @@ export default function App() {
                 ></i>
               </div>
             </PivotItem>
-            <PivotItem headerText="Team Tools" itemCount={memberships.length}>
-              
-             <ViewTeams memberShips={memberships}/>
-            </PivotItem>
+            {memberships.length > 0 && (
+              <PivotItem headerText="Team Tools" itemCount={memberships.length}>
+                <ViewTeams memberShips={memberships} />
+              </PivotItem>
+            )}
             <PivotItem headerText="Site Tools">
               <h3>Which tools do you find good for this site?</h3>
               <div>{ztickyRef}</div>
@@ -275,12 +274,16 @@ export default function App() {
                 })}
               </div>
             </PivotItem>
-            <PivotItem
-              headerText="Errors"
-              itemCount={errors.length}
-            >
-              <ViewErrors errors={errors}/>
-            </PivotItem>
+            {errors.length !== 0 && (
+              <PivotItem
+                headerText="Developer feedback"
+                itemCount={errors.length}
+              >
+                <div>
+                  <ViewErrors errors={errors} />
+                </div>
+              </PivotItem>
+            )}
           </Pivot>
         </>
       )}

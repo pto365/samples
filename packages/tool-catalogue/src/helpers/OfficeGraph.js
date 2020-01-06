@@ -3,7 +3,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 
-import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
+import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" //from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
 import axios from "axios";
 
 //import Excel from "exceljs"
@@ -180,7 +180,7 @@ function getMyTool(toolFolder) {
         resolve(response.data);
       });
     } catch (error) {
-      debugger;
+      
       reject(error);
     }
   });
@@ -247,7 +247,7 @@ function addTile(ztickyFolder, tile) {
       });
       var workbook = XLSX.utils.book_new();
 
-      debugger;
+      
       var ws = XLSX.utils.aoa_to_sheet(data);
       XLSX.utils.book_append_sheet(workbook, ws, "ZTICKYBAR");
       var wopts = { bookType: "xlsx", bookSST: false, type: "array" };
@@ -258,7 +258,7 @@ function addTile(ztickyFolder, tile) {
         .api(`/me/drive/items/${folder.id}:/tile.xlsx:/content`)
         //.header('Content-Type', 'application/octet-stream')
         .put(wbout);
-      debugger;
+     
 
       axios
         .request({
