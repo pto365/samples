@@ -3,7 +3,8 @@ import { Client } from "@microsoft/microsoft-graph-client";
 
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 
-import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" //from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
+//import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" /
+import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
 import axios from "axios";
 
 //import Excel from "exceljs"
@@ -17,7 +18,12 @@ var XLSX = require("xlsx");
 //     },
 // };
 const intoStream = require("into-stream");
-const graphScopes = ["User.Read.All", "User.ReadWrite.All","mail.send", "Files.ReadWrite.All"]; // An array of graph scopes
+const graphScopes = [
+  "User.Read.All",
+  "User.ReadWrite.All",
+  "mail.send",
+  "Files.ReadWrite.All"
+]; // An array of graph scopes
 
 // // Important Note: This library implements loginPopup and acquireTokenPopup flow, remember this while initializing the msal
 // // Initialize the MSAL @see https://github.com/AzureAD/microsoft-authentication-library-for-js#1-instantiate-the-useragentapplication
@@ -169,10 +175,53 @@ function getMyTools(ztickyFolder, refresh) {
     }
   });
 }
-function getMyTool(toolFolder) {
+
+function getTileXLSX(toolFolder) {
   return new Promise(async (resolve, reject) => {
     try {
       const client = getClient();
+
+      let tile = await client
+        .api(`/me/drive/items/${toolFolder.id}:/tile.xlsx:`)
+        .get();
+
+      axios({
+        url: tile["@microsoft.graph.downloadUrl"],
+        method: "GET",
+        responseType: "arraybuffer"
+      }).then(response => {
+        var wb = XLSX.read(response.data, { type: "buffer" });
+
+        if (!wb.Sheets.ZTICKYBAR) return resolve(null);
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets.ZTICKYBAR, {
+          header: 1,
+          raw: false
+        });
+
+        var data = {};
+        rows.forEach(row => {
+          data[row[0]] = row[1];
+        });
+
+        debugger;
+        resolve(data);
+      });
+    } catch (error) {
+      debugger;
+      resolve(null);
+    }
+  });
+}
+function getMyTool(toolFolder) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      var tileData = await getTileXLSX(toolFolder);
+      if (tileData) {
+        return resolve(tileData);
+      }
+
+      const client = getClient();
+
       let tile = await client
         .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
         .get();
@@ -180,7 +229,6 @@ function getMyTool(toolFolder) {
         resolve(response.data);
       });
     } catch (error) {
-      
       reject(error);
     }
   });
@@ -203,42 +251,6 @@ function addTile(ztickyFolder, tile) {
         .api(`/me/drive/items/${folder.id}:/tile.json:/content`)
         .put(tile);
 
-      // var workbook1 =new Excel.Workbook()
-      // workbook1.creator = "ZTICKYBAR";
-      // workbook1.lastModifiedBy = "ZTICKYBAR";
-      // workbook1.created = new Date();
-      // workbook1.modified = new Date();
-      // var sheet1 = workbook1.addWorksheet("tile");
-      // sheet1.addTable({
-      //   name: 'MyTable',
-      //   ref: 'A1',
-      //   headerRow: true,
-      //   totalsRow: true,
-      //   style: {
-      //     theme: 'TableStyleDark3',
-      //     showRowStripes: true,
-      //   },
-      //   columns: [
-      //     {name: 'Date', totalsRowLabel: 'Totals:', filterButton: true},
-      //     {name: 'Amount', totalsRowFunction: 'sum', filterButton: false},
-      //   ],
-      //   rows: [
-      //     [new Date('2019-07-20'), 70.10],
-      //     [new Date('2019-07-21'), 70.60],
-      //     [new Date('2019-07-22'), 70.10],
-      //   ],
-      // });
-      // var stream = workbook1.xlsx.createInputStream()
-      // workbook1.xlsx.write(stream).then(async ()=>{
-      //   //var payload = new Blob(buffer)
-      //   debugger
-      //  var x = await client
-      //   .api(`/me/drive/items/${folder.id}:/tile.xlsx:/content`)
-      //   .header('Content-Type', 'application/octet-stream')
-      //   .put(stream.stream);
-      //   debugger
-      // })
-
       var props = _.keys(tile);
       var data = [];
       props.forEach(prop => {
@@ -247,7 +259,6 @@ function addTile(ztickyFolder, tile) {
       });
       var workbook = XLSX.utils.book_new();
 
-      
       var ws = XLSX.utils.aoa_to_sheet(data);
       XLSX.utils.book_append_sheet(workbook, ws, "ZTICKYBAR");
       var wopts = { bookType: "xlsx", bookSST: false, type: "array" };
@@ -256,9 +267,8 @@ function addTile(ztickyFolder, tile) {
 
       var x = await client
         .api(`/me/drive/items/${folder.id}:/tile.xlsx:/content`)
-        //.header('Content-Type', 'application/octet-stream')
+
         .put(wbout);
-     
 
       axios
         .request({
@@ -283,6 +293,36 @@ function addTile(ztickyFolder, tile) {
   });
 }
 
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    try {
+      var blobUrl = URL.createObjectURL(blob);
+
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = "blob";
+
+      xhr.onload = function() {
+        var recoveredBlob = xhr.response;
+
+        var reader = new FileReader();
+
+        reader.onload = function() {
+          var blobAsDataUrl = reader.result;
+          resolve(blobAsDataUrl);
+        };
+
+        reader.readAsDataURL(recoveredBlob);
+      };
+
+      xhr.open("GET", blobUrl);
+      xhr.send();
+    } catch (error) {
+      debugger
+      resolve(null);
+    }
+  });
+}
+
 function teamMemberships() {
   return new Promise(async (resolve, reject) => {
     var groups = [];
@@ -292,7 +332,7 @@ function teamMemberships() {
 
       client
         .api("/me/joinedTeams")
-       // .version('beta')
+        // .version('beta')
         .get(async (error, memberships) => {
           if (error) {
             return reject(error);
@@ -300,28 +340,46 @@ function teamMemberships() {
           var pending = 0;
           memberships.value.map(async value => {
             pending++;
-            var photo = await client
-              .api(
-                `/groups/${value.id}/photo/$value`
-              )
+
+            try {
+              var photo = await client
+              .api(`/groups/${value.id}/photo/$value`)
               .get();
+
+            var base64 = await blobToBase64(photo);
+            } catch (error) {
+              
+            }
+           
 
             var details = await client
               .api(`/teams/${value.id}`)
               //.version("beta")
               .get();
 
-           
+              var channels = await client
+              .api(`/teams/${value.id}/channels`)
+              .version("beta")
+              .get();
+
+
+
+
             groups.push({
               key: value.id,
               text: value.displayName,
               title: value.description,
 
               data: {
+                
                 details,
-                photo
+                photo: base64,
+                channels:channels.value
               }
             });
+
+
+
             pending--;
             if (pending === 0) {
               return resolve(

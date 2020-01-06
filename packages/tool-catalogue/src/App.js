@@ -118,13 +118,13 @@ export default function App() {
   }, []);
   async function initGraph(refresh) {
     await OfficeGraph.initStorage();
-    var cachedMemberships = sessionStorage.getItem("memberships");
+    var cachedMemberships = localStorage.getItem("memberships");
     if (cachedMemberships) {
       setMemberships(JSON.parse(cachedMemberships));
     } else {
       OfficeGraph.teamMemberships()
         .then(memberships => {
-          sessionStorage.setItem("memberships", JSON.stringify(memberships));
+          localStorage.setItem("memberships", JSON.stringify(memberships));
           setMemberships(memberships);
         })
         .catch(error => {
