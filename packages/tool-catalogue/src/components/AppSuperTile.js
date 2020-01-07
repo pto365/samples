@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Tags } from "./Tags";
+import { Highlight } from "./Highlight";
 export const AppSuperTile = props => {
   var tile = props.tile ? props.tile : {};
   const [html, setHtml] = useState("");
@@ -22,7 +23,7 @@ export const AppSuperTile = props => {
       if (props.onClick)
         props.onClick(tile);
     }}>
-      <div>{tile.title}</div>
+      <div><Highlight text={tile.title} filter={props.filter} style={props.highlightStyle} /> </div>
       
       <div style={{ textAlign: "center", margin: 20, marginTop:40, height: 120 }}>
         <img style={{ height: "auto", width: 80 }} src={tile.icon} />
@@ -48,5 +49,7 @@ export const AppSuperTile = props => {
 };
 AppSuperTile.propTypes = {
   tile: PropTypes.object,
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
+  filter : PropTypes.string,
+  highlightStyle : PropTypes.object 
 };

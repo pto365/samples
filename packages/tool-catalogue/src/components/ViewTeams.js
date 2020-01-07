@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Highlight } from "./Highlight";
 export const ViewTeams = props => {
   if (props && props.memberShips) {
     return (
@@ -58,8 +59,8 @@ export const ViewTeams = props => {
              
               <div tyle={{minWidth:"366px",}}>
                 <div className="ms-font-xxl" style={{padding:"8px"}}>
-                  
-                  {details.displayName}</div>
+                  <Highlight text={details.displayName} filter={props.filter} style={props.highlightStyle} />
+                  </div>
                 <div>
                 <a
                 style={{padding:"8px"}}
@@ -88,7 +89,8 @@ export const ViewTeams = props => {
       }}>
         {channels.map((channel,key)=>{
           return <div key={key} style={{padding:"3px"}}>
-            {channel.displayName} {channel.description && <>({channel.description})</>}
+             <Highlight text={channel.displayName} filter={props.filter} style={props.highlightStyle} />
+             {channel.description && <>({channel.description})</>}
           </div>
         })}
 
@@ -106,5 +108,7 @@ export const ViewTeams = props => {
   }
 };
 ViewTeams.propTypes = {
-  memberShips: PropTypes.array
+  memberShips: PropTypes.array,
+  filter : PropTypes.string,
+  highlightStyle : PropTypes.object 
 };

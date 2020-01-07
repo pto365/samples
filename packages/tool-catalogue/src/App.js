@@ -33,6 +33,7 @@ import OfficeGraph from "./helpers/OfficeGraph";
 import { PivotItem, Pivot } from "office-ui-fabric-react/lib/Pivot";
 import { ViewErrors } from "./components/ViewErrors";
 import { ViewTeams } from "./components/ViewTeams";
+import { DefaultButton, PrimaryButton, Stack, IStackTokens } from 'office-ui-fabric-react';
 initializeIcons();
 
 export default function App() {
@@ -48,6 +49,8 @@ export default function App() {
   const [ztickyRef, setZtickyRef] = useState("");
   const [errors, setErrors] = useState([]);
   const [memberships, setMemberships] = useState([]);
+  const [siteUrlLabel,setSiteUrlLabel] = useState("")
+  const [siteUrlHref,setSiteUrlHref] = useState("")
   const addTile = tile => {
     OfficeGraph.addTile(ztickyFolder, tile);
     // db.table('myTiles')
@@ -72,6 +75,7 @@ export default function App() {
       });
     var search = getSearchParametersFromHRef(window.location.href);
     if (search.ztickyref) {
+
       setZtickyRef(search.ztickyref);
     }
     var href = search.src
@@ -192,6 +196,8 @@ export default function App() {
   var filteredTiles = !filter ? tiles : [];
   var filteredMyTools = !filter ? myTools : [];
   var filteredMemberShips = !filter ? memberships : [];
+  var filteredSiteLinks = !filter ? [] : [];
+  var siteUrl = ztickyRef ? new URL(ztickyRef) : null
   if (filter) {
     tiles.forEach(tile => {
       if (matchFilter(tile)) {
@@ -262,6 +268,8 @@ export default function App() {
                       <AppSuperTile
                         key={key}
                         tile={tile}
+                        filter={filter}
+                        highlightStyle ={{backgroundColor:"yellow"}}
                         onClick={tile => {
                           // addTile(tile)
                           setCurrentTile(tile);
@@ -280,14 +288,22 @@ export default function App() {
                 ></i>
               </div>
             </PivotItem>
-            <PivotItem headerText="Site">
+            {siteUrl &&
+            <PivotItem headerText="Site" itemCount={ filteredSiteLinks.length}>
               <h3>Which tools do you find good for this site?</h3>
-              <div>{ztickyRef}</div>
+              <div>{siteUrl.hostname}</div>
+              <TextField label="Label" placeholder="Enter label for this link" value={siteUrlLabel} onChange={(e,value)=>{
+                setSiteUrlLabel(value)
+              }}></TextField>
+              <TextField label="URL" placeholder="Enter URL" value={siteUrlHref} onChange={(e,value)=>{
+                setSiteUrlHref(value)
+              }}></TextField>
+<PrimaryButton text="Share link" disabled={(!siteUrlHref && !siteUrlLabel) ? true:false} />
             </PivotItem>
-
+          }
             {memberships.length > 0 && (
               <PivotItem headerText="Teams" itemCount={filteredMemberShips.length}>
-                <ViewTeams memberShips={filteredMemberShips} />
+                <ViewTeams memberShips={filteredMemberShips} filter={filter} highlightStyle ={{backgroundColor:"yellow"}} />
               </PivotItem>
             )}
             <PivotItem
@@ -300,6 +316,7 @@ export default function App() {
                     <AppSuperTile
                       key={key}
                       filter={filter}
+                      highlightStyle ={{backgroundColor:"yellow"}}
                       tile={tile}
                       onClick={tile => {
                         addTile(tile);

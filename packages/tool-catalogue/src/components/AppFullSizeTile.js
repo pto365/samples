@@ -29,13 +29,14 @@ export const AppFullSizeTile = props => {
       color: tile.textcolor,
       width: "100vw",
       height: "100vh",
+      
       overflow: "auto"
     }}>
       <div>
         <div style={{ display: "flex" }}>
-          <div>
+          <div style={{minWidth:"10vw"}}>
             {" "}
-            <img style={{ margin: "1vh", height: "10vh", width: "auto" }} src={tile.icon} />
+            <img style={{ margin: "1vh", height: "auto", width: "10vw" }} src={tile.icon} />
           </div>
           <div style={{ height: "10vh", width: "auto" }}>
             <div className="fullSizeHeading" style={{

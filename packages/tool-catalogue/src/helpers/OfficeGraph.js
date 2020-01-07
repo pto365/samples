@@ -69,17 +69,25 @@ function getClient() {
   return client;
 }
 
-function me() {
+function get(path){
   return new Promise(async (resolve, reject) => {
     const client = getClient();
     try {
-      let userDetails = await client.api("/me").get();
+      let data = await client.api(path).get();
 
-      return resolve(userDetails);
+      return resolve(data);
     } catch (error) {
       return reject(error);
     }
   });
+}
+function me() {
+  return get("/me")
+  
+}
+function rootSite() {
+  return get("/sites/root")
+  
 }
 
 function initStorage() {
@@ -203,7 +211,7 @@ function getTileXLSX(toolFolder) {
           data[row[0]] = row[1];
         });
 
-        debugger;
+        
         resolve(data);
       });
     } catch (error) {
@@ -403,6 +411,7 @@ function teamMemberships() {
 }
 export default {
   me,
+  rootSite,
   initStorage,
   initTileStorage,
   addTile,
