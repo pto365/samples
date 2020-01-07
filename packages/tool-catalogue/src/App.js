@@ -159,6 +159,36 @@ export default function App() {
 
     return match;
   }
+
+
+   function matchTeam(team) {
+    var details = team.data && team.data.details ? team.data.details : {};
+    var channels = team.data && team.data.channels ? team.data.channels : [];
+    var match =
+      details.displayName &&
+      details.displayName.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+    if (!match)
+      match =
+        details.description &&
+        details.description.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+        channels.forEach(channel => {
+          if (!match) {
+            match =
+              channel.displayName &&
+              channel.displayName.toLowerCase().indexOf(filter.toLowerCase()) !==
+                -1;
+          }
+          if (!match) {
+            match =
+              channel.description &&
+              channel.description.toLowerCase().indexOf(filter.toLowerCase()) !==
+                -1;
+          }
+        });
+
+    return match;
+  }
+
   var filteredTiles = !filter ? tiles : [];
   var filteredMyTools = !filter ? myTools : [];
   var filteredMemberShips = !filter ? memberships : [];
@@ -171,6 +201,12 @@ export default function App() {
     myTools.forEach(folder => {
       if (matchFilter(folder.tile)) {
         filteredMyTools.push(folder);
+      }
+    });
+
+    memberships.forEach(team => {
+      if (matchTeam(team)) {
+        filteredMemberShips.push(team);
       }
     });
   }
@@ -212,7 +248,7 @@ export default function App() {
           </div>
 
           <Pivot style={{ padding: "20px" }}>
-            <PivotItem headerText="My Tools" itemCount={filteredMyTools.length}>
+            <PivotItem headerText="My" itemCount={filteredMyTools.length}>
               <div>
                 <div style={{ display: "flex", flexWrap: "wrap" }}>
                   {filteredMyTools.map((folder, key) => {
@@ -244,17 +280,18 @@ export default function App() {
                 ></i>
               </div>
             </PivotItem>
-            {memberships.length > 0 && (
-              <PivotItem headerText="Team Tools" itemCount={memberships.length}>
-                <ViewTeams memberShips={memberships} />
-              </PivotItem>
-            )}
-            <PivotItem headerText="Site Tools">
+            <PivotItem headerText="Site">
               <h3>Which tools do you find good for this site?</h3>
               <div>{ztickyRef}</div>
             </PivotItem>
+
+            {memberships.length > 0 && (
+              <PivotItem headerText="Teams" itemCount={filteredMemberShips.length}>
+                <ViewTeams memberShips={filteredMemberShips} />
+              </PivotItem>
+            )}
             <PivotItem
-              headerText="Global Tools"
+              headerText="Global"
               itemCount={filteredTiles.length}
             >
               <div style={{ display: "flex", flexWrap: "wrap" }}>

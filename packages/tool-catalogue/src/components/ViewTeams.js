@@ -47,16 +47,16 @@ export const ViewTeams = props => {
                 fontSize: "16px",
                 display: "flex",
                 border:"1px solid #dddddd",
-                minWidth:"300px"
-               
+                minWidth:"450px",
+                maxWidth:"450px"
               }}
             >
            
-              <div>{photo &&
+              <div style={{minWidth:"84px",}}>{photo &&
                   <img src={photo} style={{height:"64px",margin:"10px"}}></img>
                 }</div>
              
-              <div>
+              <div tyle={{minWidth:"366px",}}>
                 <div className="ms-font-xxl" style={{padding:"8px"}}>
                   
                   {details.displayName}</div>
@@ -87,8 +87,8 @@ export const ViewTeams = props => {
 
       }}>
         {channels.map((channel,key)=>{
-          return <div key={key}>
-            {channel.displayName}
+          return <div key={key} style={{padding:"3px"}}>
+            {channel.displayName} {channel.description && <>({channel.description})</>}
           </div>
         })}
 
