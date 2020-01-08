@@ -121,6 +121,10 @@ export default function App() {
     });
   }, []);
   async function initGraph(refresh) {
+   try {
+     
+   
+    
     await OfficeGraph.initStorage();
     var cachedMemberships = localStorage.getItem("memberships");
     if (cachedMemberships) {
@@ -146,6 +150,11 @@ export default function App() {
         errors.push({ context: "OfficeGraph.initStorage()", error });
         setErrors(errors);
       });
+    } catch (error) {
+      errors.push({ context: "initGraph", error });
+      setErrors(errors);
+    }
+  
   }
 
   function matchFilter(tile) {

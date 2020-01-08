@@ -3,8 +3,8 @@ import { Client } from "@microsoft/microsoft-graph-client";
 
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 
-//import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" /
-import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
+import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" 
+//import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
 import axios from "axios";
 
 //import Excel from "exceljs"

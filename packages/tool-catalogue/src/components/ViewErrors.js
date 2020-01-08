@@ -5,7 +5,8 @@ export const ViewErrors = props => {
     return (<div className="tags" >
       {props.errors.map((error,key) => {
         return <div key={key} style={{ padding: "4px", margin: "4px", }}>
-          {error.context}
+          When trying {error.context}, you got 
+          {JSON.stringify(error)}
         </div>;
       })}
     </div>);
