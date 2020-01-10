@@ -290,10 +290,10 @@ function addTile(ztickyFolder, tile) {
             .put(response.data);
         })
         .catch(error => {
-          debugger;
+         // debugger;
         });
 
-      return resolve(file);
+      return resolve(folder);
     } catch (error) {
       debugger;
       return reject(error);

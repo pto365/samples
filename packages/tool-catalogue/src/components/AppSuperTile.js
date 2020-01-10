@@ -19,11 +19,28 @@ export const AppSuperTile = props => {
     maxHeight: 300,
     overflow: "auto"
   }}>
-    <div style={{ cursor: "pointer" }} onClick={() => {
-      if (props.onClick)
-        props.onClick(tile);
+    <div style={{ cursor: "pointer" }} xonClick={() => {
+      if (props.onClick){
+       // props.onClick(tile);
+             }
+
     }}>
-      <div><Highlight text={tile.title} filter={props.filter} style={props.highlightStyle} /> </div>
+      <div style={{display:"flex"}}><div style={{flexGrow:1}}><Highlight text={tile.title} filter={props.filter} style={props.highlightStyle} /> </div>
+      <div style={{alignItems:"flex-end"}}>
+      <i
+                style={{cursor:"pointer"}}
+                  class={props.isPinned ? "ms-Icon ms-Icon--PinnedFill" : "ms-Icon ms-Icon--Pinned"}
+                  onClick={() => {
+                    if (props.onPinnedClicked){
+                      
+                      props.onPinnedClicked(props)
+                    }
+                    
+                  }}
+                  aria-hidden="true"
+                ></i> 
+      </div>
+      </div>
       
       <div style={{ textAlign: "center", margin: 20, marginTop:40, height: 120 }}>
         <img style={{ height: "auto", width: 80 }} src={tile.icon} />
@@ -51,5 +68,7 @@ AppSuperTile.propTypes = {
   tile: PropTypes.object,
   onClose: PropTypes.func,
   filter : PropTypes.string,
-  highlightStyle : PropTypes.object 
+  highlightStyle : PropTypes.object,
+  isPinned : PropTypes.bool,
+  onPinnedClicked:PropTypes.func
 };

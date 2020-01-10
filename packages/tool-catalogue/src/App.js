@@ -33,7 +33,19 @@ import OfficeGraph from "./helpers/OfficeGraph";
 import { PivotItem, Pivot } from "office-ui-fabric-react/lib/Pivot";
 import { ViewErrors } from "./components/ViewErrors";
 import { ViewTeams } from "./components/ViewTeams";
-import { DefaultButton, PrimaryButton, Stack, IStackTokens } from 'office-ui-fabric-react';
+import {
+  DefaultButton,
+  PrimaryButton,
+  Stack,
+  IStackTokens
+} from "office-ui-fabric-react";
+import {
+  Dropdown,
+  DropdownMenuItemType,
+  IDropdownStyles,
+  IDropdownOption
+} from "office-ui-fabric-react/lib/Dropdown";
+
 initializeIcons();
 
 export default function App() {
@@ -49,10 +61,29 @@ export default function App() {
   const [ztickyRef, setZtickyRef] = useState("");
   const [errors, setErrors] = useState([]);
   const [memberships, setMemberships] = useState([]);
-  const [siteUrlLabel,setSiteUrlLabel] = useState("")
-  const [siteUrlHref,setSiteUrlHref] = useState("")
+  const [siteUrlLabel, setSiteUrlLabel] = useState("");
+  const [siteUrlHref, setSiteUrlHref] = useState("");
+  const [refreshing, setRefresing] = useState(false);
   const addTile = tile => {
-    OfficeGraph.addTile(ztickyFolder, tile);
+    OfficeGraph.addTile(ztickyFolder, tile)
+      .then(async file => {
+        try {
+          var myTools = await OfficeGraph.getMyTools(ztickyFolder, true);
+          //
+          setMyTools(myTools);
+        } catch (error) {
+          errors.push({ context: "AddTile > myTools.push() ", error });
+          setErrors(errors);
+        }
+        // myTools.forEach(tool=>{
+
+        // })
+        // debugger
+      })
+      .catch(error => {
+        errors.push({ context: "OfficeGraph.addTile()", error });
+        setErrors(errors);
+      });
     // db.table('myTiles')
     //   .add(tile)
     //   .then((id) => {
@@ -75,12 +106,15 @@ export default function App() {
       });
     var search = getSearchParametersFromHRef(window.location.href);
     if (search.ztickyref) {
-
       setZtickyRef(search.ztickyref);
     }
     var href = search.src
       ? search.src
       : "https://api.jumpto365.com/table/hexatown.com/PTO365";
+    readGrid(href);
+  }, []);
+
+  function readGrid(href) {
     axios.get(href).then(({ data }) => {
       setTitlegraphics(data.titlegraphics);
       var tiles = [];
@@ -104,11 +138,18 @@ export default function App() {
             }
           });
         });
-
         data.grid.forEach(row => {
           return row.forEach(cell => {
             if (cell.tile && cell.tile.title) {
               var tile = { ...cell.tile };
+              tile.correlation =
+                href +
+                "#" +
+                (tile.key
+                  ? tile.key
+                  : tile.title
+                  ? tile.title.toLowerCase()
+                  : tile.id);
               var references = groupRefs[cell.id];
               tile.references = references;
               tiles.push(tile);
@@ -116,45 +157,61 @@ export default function App() {
           });
         });
       }
-
       setTiles(_.sortBy(tiles, ["title", "href"]));
     });
-  }, []);
+  }
+
   async function initGraph(refresh) {
-   try {
-     
-   
-    
-    await OfficeGraph.initStorage();
-    var cachedMemberships = localStorage.getItem("memberships");
-    if (cachedMemberships) {
-      setMemberships(JSON.parse(cachedMemberships));
-    } else {
-      OfficeGraph.teamMemberships()
-        .then(memberships => {
-          localStorage.setItem("memberships", JSON.stringify(memberships));
-          setMemberships(memberships);
+    try {
+      if (refresh) {
+        localStorage.removeItem("memberships");
+        localStorage.removeItem("mytools");
+      }
+      var queueCount = 0;
+
+      setRefresing(true);
+
+      await OfficeGraph.initStorage();
+
+      // var cachedMemberships = localStorage.getItem("memberships");
+      // if (cachedMemberships && !refresh) {
+      //   setMemberships(JSON.parse(cachedMemberships));
+      // } else {
+      //   queueCount ++
+      //   OfficeGraph.teamMemberships()
+      //     .then(memberships => {
+      //       localStorage.setItem("memberships", JSON.stringify(memberships));
+      //       queueCount --
+      //       if (queueCount===0) setRefresing(false)
+      //       setMemberships(memberships);
+      //     })
+      //     .catch(error => {
+      //       queueCount --
+      //       if (queueCount<=0) setRefresing(false)
+      //       errors.push({ context: "OfficeGraph.teamMemberships()", error });
+      //       setErrors(errors);
+      //     });
+      // }
+
+      OfficeGraph.initTileStorage()
+        .then(async ztickyFolder => {
+          setZtickyFolder(ztickyFolder);
+          queueCount++;
+          var myTools = await OfficeGraph.getMyTools(ztickyFolder, refresh);
+          queueCount--;
+          if (queueCount === 0) setRefresing(false);
+          setMyTools(myTools);
         })
         .catch(error => {
-          errors.push({ context: "OfficeGraph.teamMemberships()", error });
+          queueCount--;
+          if (queueCount <= 0) setRefresing(false);
+          errors.push({ context: "OfficeGraph.initStorage()", error });
           setErrors(errors);
         });
-    }
-    OfficeGraph.initTileStorage()
-      .then(async ztickyFolder => {
-        setZtickyFolder(ztickyFolder);
-        var myTools = await OfficeGraph.getMyTools(ztickyFolder, refresh);
-        setMyTools(myTools);
-      })
-      .catch(error => {
-        errors.push({ context: "OfficeGraph.initStorage()", error });
-        setErrors(errors);
-      });
     } catch (error) {
       errors.push({ context: "initGraph", error });
       setErrors(errors);
     }
-  
   }
 
   function matchFilter(tile) {
@@ -173,8 +230,7 @@ export default function App() {
     return match;
   }
 
-
-   function matchTeam(team) {
+  function matchTeam(team) {
     var details = team.data && team.data.details ? team.data.details : {};
     var channels = team.data && team.data.channels ? team.data.channels : [];
     var match =
@@ -184,20 +240,20 @@ export default function App() {
       match =
         details.description &&
         details.description.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
-        channels.forEach(channel => {
-          if (!match) {
-            match =
-              channel.displayName &&
-              channel.displayName.toLowerCase().indexOf(filter.toLowerCase()) !==
-                -1;
-          }
-          if (!match) {
-            match =
-              channel.description &&
-              channel.description.toLowerCase().indexOf(filter.toLowerCase()) !==
-                -1;
-          }
-        });
+    channels.forEach(channel => {
+      if (!match) {
+        match =
+          channel.displayName &&
+          channel.displayName.toLowerCase().indexOf(filter.toLowerCase()) !==
+            -1;
+      }
+      if (!match) {
+        match =
+          channel.description &&
+          channel.description.toLowerCase().indexOf(filter.toLowerCase()) !==
+            -1;
+      }
+    });
 
     return match;
   }
@@ -206,7 +262,7 @@ export default function App() {
   var filteredMyTools = !filter ? myTools : [];
   var filteredMemberShips = !filter ? memberships : [];
   var filteredSiteLinks = !filter ? [] : [];
-  var siteUrl = ztickyRef ? new URL(ztickyRef) : null
+  var siteUrl = ztickyRef ? new URL(ztickyRef) : null;
   if (filter) {
     tiles.forEach(tile => {
       if (matchFilter(tile)) {
@@ -226,6 +282,9 @@ export default function App() {
     });
   }
 
+  const dropdownStyles = {
+    dropdown: { width: 300 }
+  };
   return (
     <>
       <img
@@ -263,72 +322,180 @@ export default function App() {
           </div>
 
           <Pivot style={{ padding: "20px" }}>
-            <PivotItem headerText="My" itemCount={filteredMyTools.length}>
-              <div>
-                <div style={{ display: "flex", flexWrap: "wrap" }}>
-                  {filteredMyTools.map((folder, key) => {
-                    var tile = folder.tile
-                      ? folder.tile
-                      : {
-                          title: folder.name,
-                          color: "#dddddd"
-                        };
-                    return (
-                      <AppSuperTile
-                        key={key}
-                        tile={tile}
-                        filter={filter}
-                        highlightStyle ={{backgroundColor:"yellow"}}
-                        onClick={tile => {
-                          // addTile(tile)
-                          setCurrentTile(tile);
-                          setIsZoomed(true);
-                        }}
-                      />
-                    );
-                  })}
-                </div>
+            {filteredMyTools.length > 0 && (
+              <PivotItem headerText="Pinned" itemCount={filteredMyTools.length}>
+                <div style={{marginLeft:"16px"}}>
                 <i
-                  class="ms-Icon ms-Icon--Refresh"
-                  onClick={() => {
-                    initGraph(true);
-                  }}
-                  aria-hidden="true"
-                ></i>
-              </div>
-            </PivotItem>
-            {siteUrl &&
-            <PivotItem headerText="Site" itemCount={ filteredSiteLinks.length}>
-              <h3>Which tools do you find good for this site?</h3>
-              <div>{siteUrl.hostname}</div>
-              <TextField label="Label" placeholder="Enter label for this link" value={siteUrlLabel} onChange={(e,value)=>{
-                setSiteUrlLabel(value)
-              }}></TextField>
-              <TextField label="URL" placeholder="Enter URL" value={siteUrlHref} onChange={(e,value)=>{
-                setSiteUrlHref(value)
-              }}></TextField>
-<PrimaryButton text="Share link" disabled={(!siteUrlHref && !siteUrlLabel) ? true:false} />
-            </PivotItem>
-          }
-            {memberships.length > 0 && (
-              <PivotItem headerText="Teams" itemCount={filteredMemberShips.length}>
-                <ViewTeams memberShips={filteredMemberShips} filter={filter} highlightStyle ={{backgroundColor:"yellow"}} />
+                    style={{ cursor: "pointer", padding: "4px" }}
+                    class="ms-Icon ms-Icon--Refresh"
+                    onClick={() => {
+                      initGraph(true);
+                    }}
+                    aria-hidden="true"
+                  ></i>{" "}
+                  {refreshing && <>Loading</>}
+                  <a href={ztickyFolder.webUrl} target="_blank">
+                    <i
+                      style={{
+                        cursor: "pointer",
+                        padding: "4px",
+                        color: "black"
+                      }}
+                      class="ms-Icon ms-Icon--OpenFolderHorizontal"
+                      aria-hidden="true"
+                    ></i>{" "}
+                  </a>
+                  </div>
+                <div>
+                  <div style={{ display: "flex", flexWrap: "wrap" }}>
+                    {filteredMyTools.map((folder, key) => {
+                      var tile = folder.tile
+                        ? folder.tile
+                        : {
+                            title: folder.name,
+                            color: "#dddddd"
+                          };
+                      return (
+                        <AppSuperTile
+                          isPinned={true}
+                          key={key}
+                          tile={tile}
+                          filter={filter}
+                          highlightStyle={{ backgroundColor: "yellow" }}
+                          onClick={tile => {
+                            // addTile(tile)
+                            setCurrentTile(tile);
+                            setIsZoomed(true);
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                  
+                </div>
               </PivotItem>
             )}
-            <PivotItem
-              headerText="Global"
-              itemCount={filteredTiles.length}
-            >
+            {siteUrl && (
+              <PivotItem headerText="Site" itemCount={filteredSiteLinks.length}>
+                <h3>Which tools do you find good for this site?</h3>
+                <div>{siteUrl.hostname}</div>
+                <TextField
+                  label="Label"
+                  placeholder="Enter label for this link"
+                  value={siteUrlLabel}
+                  onChange={(e, value) => {
+                    setSiteUrlLabel(value);
+                  }}
+                ></TextField>
+                <TextField
+                  label="URL"
+                  placeholder="Enter URL"
+                  value={siteUrlHref}
+                  onChange={(e, value) => {
+                    setSiteUrlHref(value);
+                  }}
+                ></TextField>
+                <PrimaryButton
+                  text="Share link"
+                  disabled={!siteUrlHref && !siteUrlLabel ? true : false}
+                />
+              </PivotItem>
+            )}
+            <PivotItem headerText="Global" itemCount={filteredTiles.length}>
+              <div style={{ display: "flex" }}>
+                <div style={{ marginLeft: "16px" }}>
+                  <Dropdown
+                    placeholder="Select a catalogue option"
+                    label="Catalogue"
+                    onChanged={(option, index) => {
+                      readGrid(option.key.api);
+                      //debugger
+                    }}
+                    xselectedKey="https://api.jumpto365.com/table/hexatown.com/PTO365"
+                    options={[
+                      {
+                        key: "fruitsHeader",
+                        text: "Nets Group Periodic Tables",
+                        itemType: DropdownMenuItemType.Header
+                      },
+                      {
+                        key: {
+                          id: "nets.eu/2019-q4",
+                          api:
+                            "https://api.jumpto365.com/table/nets.eu/2019-q4",
+                          web: "https://pro.jumpto365.com/@/nets.eu/2019-q4"
+                        },
+                        text: "One Tenant - Wave 1"
+                      },
+                      {
+                        key: {
+                          id: "nets.eu/digital-workplace",
+                          api:
+                            "https://api.jumpto365.com/table/nets.eu/digital-workplace",
+                          web:
+                            "https://pro.jumpto365.com/@/nets.eu/digital-workplace"
+                        },
+                        text: "Digital Workplace"
+                      },
+                      {
+                        key: {
+                          id: "nets.eu/group-tech-highlevel",
+                          api:
+                            "https://api.jumpto365.com/table/nets.eu/group-tech-highlevel",
+                          web:
+                            "https://pro.jumpto365.com/@/nets.eu/group-tech-highlevel"
+                        },
+                        text: "Group Tech Playbook"
+                      },
+
+                      {
+                        key: "divider_1",
+                        text: "-",
+                        itemType: DropdownMenuItemType.Divider
+                      },
+                      {
+                        key: "jumpto365",
+                        text: "Generic Periodic Tables",
+                        itemType: DropdownMenuItemType.Header
+                      },
+                      {
+                        key: {
+                          id: "hexatown.com/PTO365",
+                          api:
+                            "https://api.jumpto365.com/table/hexatown.com/PTO365",
+                          web: "https://pro.jumpto365.com/@/hexatown.com/PTO365"
+                        },
+                        text: "Office 365"
+                      },
+                      {
+                        key: {
+                          id: "jumpto365.com/ems5",
+                          api:
+                            "https://api.jumpto365.com/table/jumpto365.com/ems5",
+                          web: "https://pro.jumpto365.com/@/jumpto365.com/ems5"
+                        },
+                        text: "EMS"
+                      }
+                      //{ key: 'https://raw.githubusercontent.com/hexatown/docs/master/contexts/ai/index.json', text: 'AI' }
+                    ]}
+                    styles={dropdownStyles}
+                  />
+                </div>{" "}
+              </div>
               <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {filteredTiles.map((tile, key) => {
                   return (
                     <AppSuperTile
                       key={key}
                       filter={filter}
-                      highlightStyle ={{backgroundColor:"yellow"}}
+                      highlightStyle={{ backgroundColor: "yellow" }}
                       tile={tile}
+                      onPinnedClicked={props => {
+                        if (props.tile) {
+                          addTile(props.tile);
+                        }
+                      }}
                       onClick={tile => {
-                        addTile(tile);
                         setCurrentTile(tile);
                         setIsZoomed(true);
                       }}
@@ -337,6 +504,19 @@ export default function App() {
                 })}
               </div>
             </PivotItem>
+            {memberships.length > 0 && (
+              <PivotItem
+                headerText="Teams"
+                itemCount={filteredMemberShips.length}
+              >
+                <ViewTeams
+                  memberShips={filteredMemberShips}
+                  filter={filter}
+                  highlightStyle={{ backgroundColor: "yellow" }}
+                />
+              </PivotItem>
+            )}
+
             {errors.length !== 0 && (
               <PivotItem
                 headerText="Developer feedback"
