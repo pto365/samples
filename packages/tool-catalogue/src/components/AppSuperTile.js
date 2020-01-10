@@ -43,13 +43,13 @@ export const AppSuperTile = props => {
       </div>
       
       <div style={{ textAlign: "center", margin: 20, marginTop:40, height: 120 }}>
-        <img style={{ height: "auto", width: 80 }} src={tile.icon} />
+        <img style={{ height: "auto", width: 112 }} src={tile.icon} />
       </div>
 
-      {/* <div style={{ maxHeight: 80, height: 80, overflow: "auto" }}>
+      <div style={{ maxHeight: 60, height: 60, overflow: "auto" }}>
         {tile.inShort}
-      </div> */}
-      <Tags references={tile.references} />
+      </div>
+      {/* <Tags references={tile.references} /> */}
 
     </div>
   </div>

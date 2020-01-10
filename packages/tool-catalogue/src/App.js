@@ -45,7 +45,8 @@ import {
   IDropdownStyles,
   IDropdownOption
 } from "office-ui-fabric-react/lib/Dropdown";
-
+import { ProgressIndicator } from "office-ui-fabric-react/lib/ProgressIndicator";
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 initializeIcons();
 
 export default function App() {
@@ -64,7 +65,11 @@ export default function App() {
   const [siteUrlLabel, setSiteUrlLabel] = useState("");
   const [siteUrlHref, setSiteUrlHref] = useState("");
   const [refreshing, setRefresing] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [showTable, setShowTable] = useState(false);
+  const [tableUrl, setTableUrl] = useState("");
   const addTile = tile => {
+    setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
       .then(async file => {
         try {
@@ -83,6 +88,9 @@ export default function App() {
       .catch(error => {
         errors.push({ context: "OfficeGraph.addTile()", error });
         setErrors(errors);
+      })
+      .finally(() => {
+        setProgress("");
       });
     // db.table('myTiles')
     //   .add(tile)
@@ -111,6 +119,7 @@ export default function App() {
     var href = search.src
       ? search.src
       : "https://api.jumpto365.com/table/hexatown.com/PTO365";
+    setTableUrl("https://pro.jumpto365.com/@/hexatown.com/PTO365")
     readGrid(href);
   }, []);
 
@@ -287,6 +296,18 @@ export default function App() {
   };
   return (
     <>
+      {" "}
+      {progress && (
+        <div style={{
+          backgroundColor:"white",
+          width:"100vw",
+          position: "fixed",
+          top: "0px",
+         
+        }}>
+        <ProgressIndicator xlabel="Example title" description={progress} />
+        </div>
+      )}
       <img
         style={{
           height: "64px",
@@ -309,6 +330,23 @@ export default function App() {
       )}
       {!isZoomed && (
         <>
+          {" "}
+          <div style={{
+          paddingRight:"8px",
+          position: "fixed",
+          bottom: "0px",
+          backgroundColor:"white"
+        }}>
+          <i
+            style={{ cursor: "pointer", padding: "4px" }}
+            class="ms-Icon ms-Icon--Refresh"
+            onClick={() => {
+              initGraph(true);
+            }}
+            aria-hidden="true"
+          ></i>{" "}
+          {refreshing && <>Loading</>}
+          </div>
           <div style={{ padding: "20px" }}>
             <TextField
               label="Filter"
@@ -320,20 +358,10 @@ export default function App() {
               iconProps={{ iconName: "Filter" }}
             />
           </div>
-
           <Pivot style={{ padding: "20px" }}>
             {filteredMyTools.length > 0 && (
               <PivotItem headerText="Pinned" itemCount={filteredMyTools.length}>
-                <div style={{marginLeft:"16px"}}>
-                <i
-                    style={{ cursor: "pointer", padding: "4px" }}
-                    class="ms-Icon ms-Icon--Refresh"
-                    onClick={() => {
-                      initGraph(true);
-                    }}
-                    aria-hidden="true"
-                  ></i>{" "}
-                  {refreshing && <>Loading</>}
+                <div style={{ marginLeft: "16px" }}>
                   <a href={ztickyFolder.webUrl} target="_blank">
                     <i
                       style={{
@@ -345,7 +373,7 @@ export default function App() {
                       aria-hidden="true"
                     ></i>{" "}
                   </a>
-                  </div>
+                </div>
                 <div>
                   <div style={{ display: "flex", flexWrap: "wrap" }}>
                     {filteredMyTools.map((folder, key) => {
@@ -371,7 +399,6 @@ export default function App() {
                       );
                     })}
                   </div>
-                  
                 </div>
               </PivotItem>
             )}
@@ -409,8 +436,10 @@ export default function App() {
                     label="Catalogue"
                     onChanged={(option, index) => {
                       readGrid(option.key.api);
+                      setTableUrl(option.key.web)
                       //debugger
                     }}
+                    
                     xselectedKey="https://api.jumpto365.com/table/hexatown.com/PTO365"
                     options={[
                       {
@@ -481,7 +510,17 @@ export default function App() {
                     styles={dropdownStyles}
                   />
                 </div>{" "}
+                <div style={{marginLeft:"16px"}}>
+                <Toggle label="Show Table" checked={showTable} style={{marginTop:"8px"}}  xonText="On" xoffText="Off" onChange={(e,checked)=>{setShowTable(checked)}} />
+                </div>
+    
               </div>
+              {showTable && <>
+                {tableUrl}
+              <iframe style={{height:"calc(100vh - 300px",width:"calc(100vw - 100px"}}   src={tableUrl}></iframe>
+              
+              </>}
+              {!showTable &&
               <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {filteredTiles.map((tile, key) => {
                   return (
@@ -502,7 +541,7 @@ export default function App() {
                     />
                   );
                 })}
-              </div>
+              </div>}
             </PivotItem>
             {memberships.length > 0 && (
               <PivotItem
