@@ -46,7 +46,17 @@ import {
   IDropdownOption
 } from "office-ui-fabric-react/lib/Dropdown";
 import { ProgressIndicator } from "office-ui-fabric-react/lib/ProgressIndicator";
-import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+import { Toggle } from "office-ui-fabric-react/lib/Toggle";
+import {
+  CommandBar,
+  ICommandBarItemProps
+} from "office-ui-fabric-react/lib/CommandBar";
+
+import Animejs from "animejs";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+import GridLayout from "react-grid-layout";
+import ToolboxLayout from "./components/ToolboxLayout";
 initializeIcons();
 
 export default function App() {
@@ -67,7 +77,9 @@ export default function App() {
   const [refreshing, setRefresing] = useState(false);
   const [progress, setProgress] = useState("");
   const [showTable, setShowTable] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [tableUrl, setTableUrl] = useState("");
+  const [layouts, setLayouts] = useState({});
   const addTile = tile => {
     setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
@@ -119,11 +131,15 @@ export default function App() {
     var href = search.src
       ? search.src
       : "https://api.jumpto365.com/table/hexatown.com/PTO365";
-    setTableUrl("https://pro.jumpto365.com/@/hexatown.com/PTO365")
-    readGrid(href);
+    setTableUrl("https://pro.jumpto365.com/@/hexatown.com/PTO365");
+    readGrid(href, "hexatown.com/PTO365");
+
+  
+
+
   }, []);
 
-  function readGrid(href) {
+  function readGrid(href,tableId) {
     axios.get(href).then(({ data }) => {
       setTitlegraphics(data.titlegraphics);
       var tiles = [];
@@ -151,6 +167,7 @@ export default function App() {
           return row.forEach(cell => {
             if (cell.tile && cell.tile.title) {
               var tile = { ...cell.tile };
+              tile.tableId = tableId
               tile.correlation =
                 href +
                 "#" +
@@ -207,9 +224,11 @@ export default function App() {
           setZtickyFolder(ztickyFolder);
           queueCount++;
           var myTools = await OfficeGraph.getMyTools(ztickyFolder, refresh);
+          var layouts = await OfficeGraph.readLayouts(ztickyFolder)
           queueCount--;
           if (queueCount === 0) setRefresing(false);
           setMyTools(myTools);
+          setLayouts(layouts)
         })
         .catch(error => {
           queueCount--;
@@ -266,6 +285,16 @@ export default function App() {
 
     return match;
   }
+  function persistLayouts(layouts){
+    setLayouts(layouts)
+    OfficeGraph.writeLayouts(ztickyFolder,  layouts).then()
+    .catch(error => {
+     
+      errors.push({ context: "  OfficeGraph.writeLayouts()", error });
+      setErrors(errors);
+    });
+
+  }
 
   var filteredTiles = !filter ? tiles : [];
   var filteredMyTools = !filter ? myTools : [];
@@ -295,280 +324,354 @@ export default function App() {
     dropdown: { width: 300 }
   };
   return (
-    <>
-      {" "}
-      {progress && (
-        <div style={{
-          backgroundColor:"white",
-          width:"100vw",
-          position: "fixed",
-          top: "0px",
-         
-        }}>
-        <ProgressIndicator xlabel="Example title" description={progress} />
-        </div>
-      )}
-      <img
-        style={{
-          height: "64px",
-          margin: "13px",
-          position: "fixed",
-          bottom: "0px",
-          right: "0px"
-        }}
-        src={titlegraphics}
-      ></img>
-      {isZoomed && (
-        <div>
-          <AppFullSizeTile
-            tile={currentTile ? currentTile : tiles ? tiles[0] : null}
-            onClose={() => {
-              setIsZoomed(false);
+    <div>
+      <CommandBar
+        // items={_items}
+        // overflowItems={_overflowItems}
+        // overflowButtonProps={overflowProps}
+        farItems={[
+          {
+            key: "tile",
+            text: "Grid view",
+            // This needs an ariaLabel since it's icon-only
+            ariaLabel: "Filter view",
+            iconOnly: true,
+            iconProps: { iconName: "Filter" },
+            onClick: () => {
+              if (showFilterOptions) {
+                setFilter("");
+              }
+              setShowFilterOptions(!showFilterOptions);
+            }
+          }
+        ]}
+        ariaLabel="Use left and right arrow keys to navigate between commands"
+      />
+      <div style={{ paddingRight: "20px", paddingLeft: "20px" }}>
+        {" "}
+        {progress && (
+          <div
+            style={{
+              backgroundColor: "white",
+              width: "100vw",
+              position: "fixed",
+              top: "0px"
             }}
-          />
-        </div>
-      )}
-      {!isZoomed && (
-        <>
-          {" "}
-          <div style={{
-          paddingRight:"8px",
-          position: "fixed",
-          bottom: "0px",
-          backgroundColor:"white"
-        }}>
-          <i
-            style={{ cursor: "pointer", padding: "4px" }}
-            class="ms-Icon ms-Icon--Refresh"
-            onClick={() => {
-              initGraph(true);
-            }}
-            aria-hidden="true"
-          ></i>{" "}
-          {refreshing && <>Loading</>}
+          >
+            <ProgressIndicator xlabel="Example title" description={progress} />
           </div>
-          <div style={{ padding: "20px" }}>
-            <TextField
-              label="Filter"
-              value={filter}
-              onChange={(e, newValue) => {
-                setFilter(newValue);
+        )}
+        <img
+          style={{
+            height: "64px",
+            margin: "13px",
+            position: "fixed",
+            bottom: "0px",
+            right: "0px"
+          }}
+          src={titlegraphics}
+        ></img>
+        {isZoomed && (
+          <div>
+            <AppFullSizeTile
+              tile={currentTile ? currentTile : tiles ? tiles[0] : null}
+              onClose={() => {
+                setIsZoomed(false);
               }}
-              placeholder="Filter the list of tools"
-              iconProps={{ iconName: "Filter" }}
             />
           </div>
-          <Pivot style={{ padding: "20px" }}>
-            {filteredMyTools.length > 0 && (
-              <PivotItem headerText="Pinned" itemCount={filteredMyTools.length}>
-                <div style={{ marginLeft: "16px" }}>
-                  <a href={ztickyFolder.webUrl} target="_blank">
-                    <i
-                      style={{
-                        cursor: "pointer",
-                        padding: "4px",
-                        color: "black"
+        )}
+        {!isZoomed && (
+          <div style={{ display: "flex" }}>
+            {" "}
+            <div
+              style={{
+                paddingRight: "8px",
+                position: "fixed",
+                bottom: "0px",
+                backgroundColor: "white"
+              }}
+            >
+              <a href={ztickyFolder.webUrl} target="_blank">
+                <i
+                  style={{
+                    cursor: "pointer",
+                    padding: "4px",
+                    color: "black"
+                  }}
+                  class="ms-Icon ms-Icon--OpenFolderHorizontal"
+                  aria-hidden="true"
+                ></i>{" "}
+              </a>
+              <i
+                style={{ cursor: "pointer", padding: "4px" }}
+                class="ms-Icon ms-Icon--Refresh"
+                onClick={() => {
+                  initGraph(true);
+                }}
+                aria-hidden="true"
+              ></i>{" "}
+              {refreshing && <>Loading</>}
+            </div>
+            <div style={{ flexGrow: "1" }}>
+              <Pivot style={{ padding: "0px" }}>
+                {filteredMyTools.length > 0 && (
+                  <PivotItem
+                    headerText="Pinned"
+                    itemCount={filteredMyTools.length}
+                  >
+                    <div>
+                      <div style={{ display: "flex", flexWrap: "wrap" }}>
+                        {filteredMyTools.map((folder, key) => {
+                          var tile = folder.tile
+                            ? folder.tile
+                            : {
+                                title: folder.name,
+                                color: "#dddddd"
+                              };
+                          return (
+                            <AppSuperTile
+                              isPinned={true}
+                              key={key}
+                              tile={tile}
+                              filter={filter}
+                              highlightStyle={{ backgroundColor: "yellow" }}
+                              onClick={tile => {
+                                // addTile(tile)
+                                setCurrentTile(tile);
+                                setIsZoomed(true);
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </PivotItem>
+                )}
+                {siteUrl && (
+                  <PivotItem
+                    headerText="Site"
+                    itemCount={filteredSiteLinks.length}
+                  >
+                    <h3>Which tools do you find good for this site?</h3>
+                    <div>{siteUrl.hostname}</div>
+                    <TextField
+                      label="Label"
+                      placeholder="Enter label for this link"
+                      value={siteUrlLabel}
+                      onChange={(e, value) => {
+                        setSiteUrlLabel(value);
                       }}
-                      class="ms-Icon ms-Icon--OpenFolderHorizontal"
-                      aria-hidden="true"
-                    ></i>{" "}
-                  </a>
-                </div>
-                <div>
-                  <div style={{ display: "flex", flexWrap: "wrap" }}>
-                    {filteredMyTools.map((folder, key) => {
-                      var tile = folder.tile
-                        ? folder.tile
-                        : {
-                            title: folder.name,
-                            color: "#dddddd"
-                          };
-                      return (
-                        <AppSuperTile
-                          isPinned={true}
-                          key={key}
-                          tile={tile}
-                          filter={filter}
-                          highlightStyle={{ backgroundColor: "yellow" }}
-                          onClick={tile => {
-                            // addTile(tile)
-                            setCurrentTile(tile);
-                            setIsZoomed(true);
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              </PivotItem>
-            )}
-            {siteUrl && (
-              <PivotItem headerText="Site" itemCount={filteredSiteLinks.length}>
-                <h3>Which tools do you find good for this site?</h3>
-                <div>{siteUrl.hostname}</div>
-                <TextField
-                  label="Label"
-                  placeholder="Enter label for this link"
-                  value={siteUrlLabel}
-                  onChange={(e, value) => {
-                    setSiteUrlLabel(value);
-                  }}
-                ></TextField>
-                <TextField
-                  label="URL"
-                  placeholder="Enter URL"
-                  value={siteUrlHref}
-                  onChange={(e, value) => {
-                    setSiteUrlHref(value);
-                  }}
-                ></TextField>
-                <PrimaryButton
-                  text="Share link"
-                  disabled={!siteUrlHref && !siteUrlLabel ? true : false}
-                />
-              </PivotItem>
-            )}
-            <PivotItem headerText="Global" itemCount={filteredTiles.length}>
-              <div style={{ display: "flex" }}>
-                <div style={{ marginLeft: "16px" }}>
-                  <Dropdown
-                    placeholder="Select a catalogue option"
-                    label="Catalogue"
-                    onChanged={(option, index) => {
-                      readGrid(option.key.api);
-                      setTableUrl(option.key.web)
-                      //debugger
-                    }}
-                    
-                    xselectedKey="https://api.jumpto365.com/table/hexatown.com/PTO365"
-                    options={[
-                      {
-                        key: "fruitsHeader",
-                        text: "Nets Group Periodic Tables",
-                        itemType: DropdownMenuItemType.Header
-                      },
-                      {
-                        key: {
-                          id: "nets.eu/2019-q4",
-                          api:
-                            "https://api.jumpto365.com/table/nets.eu/2019-q4",
-                          web: "https://pro.jumpto365.com/@/nets.eu/2019-q4"
-                        },
-                        text: "One Tenant - Wave 1"
-                      },
-                      {
-                        key: {
-                          id: "nets.eu/digital-workplace",
-                          api:
-                            "https://api.jumpto365.com/table/nets.eu/digital-workplace",
-                          web:
-                            "https://pro.jumpto365.com/@/nets.eu/digital-workplace"
-                        },
-                        text: "Digital Workplace"
-                      },
-                      {
-                        key: {
-                          id: "nets.eu/group-tech-highlevel",
-                          api:
-                            "https://api.jumpto365.com/table/nets.eu/group-tech-highlevel",
-                          web:
-                            "https://pro.jumpto365.com/@/nets.eu/group-tech-highlevel"
-                        },
-                        text: "Group Tech Playbook"
-                      },
+                    ></TextField>
+                    <TextField
+                      label="URL"
+                      placeholder="Enter URL"
+                      value={siteUrlHref}
+                      onChange={(e, value) => {
+                        setSiteUrlHref(value);
+                      }}
+                    ></TextField>
+                    <PrimaryButton
+                      text="Share link"
+                      disabled={!siteUrlHref && !siteUrlLabel ? true : false}
+                    />
+                  </PivotItem>
+                )}
+                <PivotItem
+                  headerText="Catalogue"
+                  itemCount={filteredTiles.length}
+                >
+                  <div style={{ display: "flex", marginTop: "8px" }}>
+                    <div style={{ marginLeft: "16px", flexGrow: 1 }}>
+                      <Dropdown
+                        placeholder="Select an area"
+                        xlabel="Catalogue"
+                        onChanged={(option, index) => {
+                          readGrid(option.key.api,option.key.id);
+                          setTableUrl(option.key.web);
+                          //debugger
+                        }}
+                        xselectedKey="https://api.jumpto365.com/table/hexatown.com/PTO365"
+                        options={[
+                          {
+                            key: "fruitsHeader",
+                            text: "Nets Group Periodic Tables",
+                            itemType: DropdownMenuItemType.Header
+                          },
+                          {
+                            key: {
+                              id: "nets.eu/2019-q4",
+                              api:
+                                "https://api.jumpto365.com/table/nets.eu/2019-q4",
+                              web: "https://pro.jumpto365.com/@/nets.eu/2019-q4"
+                            },
+                            text: "One Tenant - Wave 1"
+                          },
+                          {
+                            key: {
+                              id: "nets.eu/digital-workplace",
+                              api:
+                                "https://api.jumpto365.com/table/nets.eu/digital-workplace",
+                              web:
+                                "https://pro.jumpto365.com/@/nets.eu/digital-workplace"
+                            },
+                            text: "Digital Workplace"
+                          },
+                          {
+                            key: {
+                              id: "nets.eu/group-tech-highlevel",
+                              api:
+                                "https://api.jumpto365.com/table/nets.eu/group-tech-highlevel",
+                              web:
+                                "https://pro.jumpto365.com/@/nets.eu/group-tech-highlevel"
+                            },
+                            text: "Group Tech Playbook"
+                          },
 
-                      {
-                        key: "divider_1",
-                        text: "-",
-                        itemType: DropdownMenuItemType.Divider
-                      },
-                      {
-                        key: "jumpto365",
-                        text: "Generic Periodic Tables",
-                        itemType: DropdownMenuItemType.Header
-                      },
-                      {
-                        key: {
-                          id: "hexatown.com/PTO365",
-                          api:
-                            "https://api.jumpto365.com/table/hexatown.com/PTO365",
-                          web: "https://pro.jumpto365.com/@/hexatown.com/PTO365"
-                        },
-                        text: "Office 365"
-                      },
-                      {
-                        key: {
-                          id: "jumpto365.com/ems5",
-                          api:
-                            "https://api.jumpto365.com/table/jumpto365.com/ems5",
-                          web: "https://pro.jumpto365.com/@/jumpto365.com/ems5"
-                        },
-                        text: "EMS"
-                      }
-                      //{ key: 'https://raw.githubusercontent.com/hexatown/docs/master/contexts/ai/index.json', text: 'AI' }
-                    ]}
-                    styles={dropdownStyles}
-                  />
-                </div>{" "}
-                <div style={{marginLeft:"16px"}}>
-                <Toggle label="Show Table" checked={showTable} style={{marginTop:"8px"}}  xonText="On" xoffText="Off" onChange={(e,checked)=>{setShowTable(checked)}} />
-                </div>
-    
-              </div>
-              {showTable && <>
-                {tableUrl}
-              <iframe style={{height:"calc(100vh - 300px",width:"calc(100vw - 100px"}}   src={tableUrl}></iframe>
-              
-              </>}
-              {!showTable &&
-              <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {filteredTiles.map((tile, key) => {
-                  return (
-                    <AppSuperTile
-                      key={key}
+                          {
+                            key: "divider_1",
+                            text: "-",
+                            itemType: DropdownMenuItemType.Divider
+                          },
+                          {
+                            key: "jumpto365",
+                            text: "Generic Periodic Tables",
+                            itemType: DropdownMenuItemType.Header
+                          },
+                          {
+                            key: {
+                              id: "hexatown.com/PTO365",
+                              api:
+                                "https://api.jumpto365.com/table/hexatown.com/PTO365",
+                              web:
+                                "https://pro.jumpto365.com/@/hexatown.com/PTO365"
+                            },
+                            text: "Office 365"
+                          },
+                          {
+                            key: {
+                              id: "jumpto365.com/ems5",
+                              api:
+                                "https://api.jumpto365.com/table/jumpto365.com/ems5",
+                              web:
+                                "https://pro.jumpto365.com/@/jumpto365.com/ems5"
+                            },
+                            text: "EMS"
+                          }
+                          //{ key: 'https://raw.githubusercontent.com/hexatown/docs/master/contexts/ai/index.json', text: 'AI' }
+                        ]}
+                        styles={dropdownStyles}
+                      />
+                    </div>{" "}
+                    <div style={{ marginLeft: "16px" }}>
+                      <div style={{ display: "flex" }}>
+                        <div style={{ padding: "8px" }}>Table view</div>
+                        <div>
+                          <Toggle
+                            xlabel="Show Table"
+                            checked={showTable}
+                            style={{ marginTop: "8px" }}
+                            xonText="Table view On"
+                            xoffText="Table view Off"
+                            onChange={(e, checked) => {
+                              setShowTable(checked);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {showTable && (
+                    <>
+                      {tableUrl}
+                      <iframe
+                        style={{
+                          height: "calc(100vh - 300px",
+                          width: "calc(100vw - 100px"
+                        }}
+                        src={tableUrl}
+                      ></iframe>
+                    </>
+                  )}
+                  {!showTable && (
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                      {filteredTiles.map((tile, key) => {
+                        return (
+                          <AppSuperTile
+                            key={key}
+                            filter={filter}
+                            highlightStyle={{ backgroundColor: "yellow" }}
+                            tile={tile}
+                            onPinnedClicked={props => {
+                              if (props.tile) {
+                                addTile(props.tile);
+                              }
+                            }}
+                            onClick={tile => {
+                              setCurrentTile(tile);
+                              setIsZoomed(true);
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </PivotItem> 
+                {memberships.length > 0 && (
+                  <PivotItem
+                    headerText="Teams"
+                    itemCount={filteredMemberShips.length}
+                  >
+                    <ViewTeams
+                      memberShips={filteredMemberShips}
                       filter={filter}
                       highlightStyle={{ backgroundColor: "yellow" }}
-                      tile={tile}
-                      onPinnedClicked={props => {
-                        if (props.tile) {
-                          addTile(props.tile);
-                        }
-                      }}
-                      onClick={tile => {
-                        setCurrentTile(tile);
-                        setIsZoomed(true);
-                      }}
                     />
-                  );
-                })}
-              </div>}
-            </PivotItem>
-            {memberships.length > 0 && (
-              <PivotItem
-                headerText="Teams"
-                itemCount={filteredMemberShips.length}
+                  </PivotItem>
+                )}
+                <PivotItem headerText="Grid">
+                  <div>
+                    <ToolboxLayout tools={myTools}  layouts={layouts} persist={persistLayouts}/>
+                  </div>
+                </PivotItem>
+                {errors.length !== 0 && (
+                  <PivotItem
+                    headerText="Developer feedback"
+                    itemCount={errors.length}
+                  >
+                    <div>
+                      <ViewErrors errors={errors} />
+                    </div>
+                  </PivotItem>
+                )}
+              </Pivot>
+            </div>
+            {showFilterOptions && (
+              <div
+                style={{
+                  borderLeft: "1px solid #dddddd",
+                  borderTop: "1px solid #dddddd",
+                  padding: "8px",
+                  float: "right",
+                  minWidth: "300px"
+                }}
               >
-                <ViewTeams
-                  memberShips={filteredMemberShips}
-                  filter={filter}
-                  highlightStyle={{ backgroundColor: "yellow" }}
-                />
-              </PivotItem>
-            )}
-
-            {errors.length !== 0 && (
-              <PivotItem
-                headerText="Developer feedback"
-                itemCount={errors.length}
-              >
-                <div>
-                  <ViewErrors errors={errors} />
+                <div style={{ padding: "0px" }}>
+                  <TextField
+                    label="Filter"
+                    value={filter}
+                    onChange={(e, newValue) => {
+                      setFilter(newValue);
+                    }}
+                    placeholder="Filter the list of tools"
+                    iconProps={{ iconName: "Filter" }}
+                  />
                 </div>
-              </PivotItem>
+              </div>
             )}
-          </Pivot>
-        </>
-      )}
-    </>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

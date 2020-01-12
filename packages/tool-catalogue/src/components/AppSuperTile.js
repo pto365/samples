@@ -19,9 +19,9 @@ export const AppSuperTile = props => {
     maxHeight: 300,
     overflow: "auto"
   }}>
-    <div style={{ cursor: "pointer" }} xonClick={() => {
+    <div style={{ cursor: "pointer" }} onClick={() => {
       if (props.onClick){
-       // props.onClick(tile);
+        props.onClick(tile);
              }
 
     }}>

@@ -3,7 +3,7 @@ import { Client } from "@microsoft/microsoft-graph-client";
 
 import { MSALAuthenticationProviderOptions } from "@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions";
 
-import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider" 
+import { ImplicitMSALAuthenticationProvider } from "./ImplicitMSALAuthenticationProvider";
 //import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
 import axios from "axios";
 
@@ -63,13 +63,17 @@ const options = {
   authProvider // An instance created from previous step
 };
 
+var buffer = {
+  grid: { pending: false }
+};
+
 function getClient() {
   const MsClient = Client;
   const client = MsClient.initWithMiddleware(options);
   return client;
 }
 
-function get(path){
+function get(path) {
   return new Promise(async (resolve, reject) => {
     const client = getClient();
     try {
@@ -82,12 +86,10 @@ function get(path){
   });
 }
 function me() {
-  return get("/me")
-  
+  return get("/me");
 }
 function rootSite() {
-  return get("/sites/root")
-  
+  return get("/sites/root");
 }
 
 function initStorage() {
@@ -211,7 +213,6 @@ function getTileXLSX(toolFolder) {
           data[row[0]] = row[1];
         });
 
-        
         resolve(data);
       });
     } catch (error) {
@@ -220,33 +221,55 @@ function getTileXLSX(toolFolder) {
     }
   });
 }
-function getMyTool(toolFolder) {
+
+function getFile(folder,filename) {
   return new Promise(async (resolve, reject) => {
     try {
-      var tileData = await getTileXLSX(toolFolder);
-      if (tileData) {
-        return resolve(tileData);
-      }
 
       const client = getClient();
 
       let tile = await client
-        .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
+        .api(`/me/drive/items/${folder.id}:/${filename}:`)
         .get();
       axios.get(tile["@microsoft.graph.downloadUrl"]).then(response => {
         resolve(response.data);
       });
     } catch (error) {
-      reject(error);
+      resolve(null);
     }
   });
+}
+function getMyTool(toolFolder) {
+  return getFile(toolFolder,"tile.json")
+  // return new Promise(async (resolve, reject) => {
+  //   try {
+  //     var tileData = await getTileXLSX(toolFolder);
+  //     if (tileData) {
+  //       return resolve(tileData);
+  //     }
+
+  //     const client = getClient();
+
+  //     let tile = await client
+  //       .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
+  //       .get();
+  //     axios.get(tile["@microsoft.graph.downloadUrl"]).then(response => {
+  //       resolve(response.data);
+  //     });
+  //   } catch (error) {
+  //     reject(error);
+  //   }
+  // });
 }
 function addTile(ztickyFolder, tile) {
   return new Promise(async (resolve, reject) => {
     const client = getClient();
     try {
+      var folderName = tile.tableId
+        ? tile.title + " (" + tile.tableId.replace("/", "-") + ")"
+        : tile.title;
       const driveItem = {
-        name: tile.title,
+        name: folderName,
         folder: {},
         "@microsoft.graph.conflictBehavior": "replace"
       };
@@ -290,7 +313,7 @@ function addTile(ztickyFolder, tile) {
             .put(response.data);
         })
         .catch(error => {
-         // debugger;
+          // debugger;
         });
 
       return resolve(folder);
@@ -325,7 +348,7 @@ function blobToBase64(blob) {
       xhr.open("GET", blobUrl);
       xhr.send();
     } catch (error) {
-      debugger
+      debugger;
       resolve(null);
     }
   });
@@ -351,27 +374,21 @@ function teamMemberships() {
 
             try {
               var photo = await client
-              .api(`/groups/${value.id}/photo/$value`)
-              .get();
+                .api(`/groups/${value.id}/photo/$value`)
+                .get();
 
-            var base64 = await blobToBase64(photo);
-            } catch (error) {
-              
-            }
-           
+              var base64 = await blobToBase64(photo);
+            } catch (error) {}
 
             var details = await client
               .api(`/teams/${value.id}`)
               //.version("beta")
               .get();
 
-              var channels = await client
+            var channels = await client
               .api(`/teams/${value.id}/channels`)
               .version("beta")
               .get();
-
-
-
 
             groups.push({
               key: value.id,
@@ -379,14 +396,11 @@ function teamMemberships() {
               title: value.description,
 
               data: {
-                
                 details,
                 photo: base64,
-                channels:channels.value
+                channels: channels.value
               }
             });
-
-
 
             pending--;
             if (pending === 0) {
@@ -409,6 +423,64 @@ function teamMemberships() {
     }
   });
 }
+
+function delaywriteLayouts() {
+  setTimeout(() => {
+    console.log("delaywriteLayouts")
+    if (!buffer.grid.pending){ return}
+    if ( buffer.grid.writing) {
+      return delaywriteLayouts();
+    }
+    writeLayouts(buffer.grid.folder,buffer.grid.data)
+  }, 500);
+}
+function writeLayouts(folder, grid) {
+  return new Promise(async (resolve, reject) => {
+    console.log("writeLayouts")
+    if (buffer.grid.writing) {
+
+      if (_.isEqual(buffer.grid.current,grid)){
+        console.log("writeLayouts no changes")
+        return resolve()
+      }
+      buffer.grid.pending = true;
+      buffer.grid.data = grid;
+      buffer.grid.folder = folder
+      delaywriteLayouts();
+      return resolve();
+    }
+   
+    
+    try {
+      buffer.grid.writing = true;
+      buffer.grid.current = grid;
+      const client = getClient();
+      console.log("writeLayouts > got Client")
+      await client
+        .api(`/me/drive/items/${folder.id}:/layouts.json:/content`)
+        .put(grid);
+        console.log("writeLayouts > wrote")
+
+      resolve();
+    } catch (error) {
+      console.log("writeLayouts > error",error)
+      return reject(error);
+    } finally {
+      buffer.grid.writing = false;
+    }
+  });
+}
+function readLayouts(ztickyFolder) {
+  return new Promise(async (resolve, reject) => {
+    var grid = await getFile(ztickyFolder,"layouts.json")
+    resolve(grid)
+    try {
+    } catch (error) {
+
+      resolve(null)
+    }
+  });
+}
 export default {
   me,
   rootSite,
@@ -416,7 +488,9 @@ export default {
   initTileStorage,
   addTile,
   getMyTools,
-  teamMemberships
+  teamMemberships,
+  writeLayouts,
+  readLayouts
 };
 
 // var PTO365 = {
