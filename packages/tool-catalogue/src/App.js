@@ -57,6 +57,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import GridLayout from "react-grid-layout";
 import ToolboxLayout from "./components/ToolboxLayout";
+import { ErrorCacheKeys } from "msal/lib-commonjs/utils/Constants";
 initializeIcons();
 
 export default function App() {
@@ -77,15 +78,37 @@ export default function App() {
   const [refreshing, setRefresing] = useState(false);
   const [progress, setProgress] = useState("");
   const [showTable, setShowTable] = useState(false);
+  const [editingLayout, setEditingLayout] = useState(true);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [tableUrl, setTableUrl] = useState("");
   const [layouts, setLayouts] = useState({});
   const addTile = tile => {
     setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
-      .then(async file => {
+      .then(async folder => {
         try {
-          var myTools = await OfficeGraph.getMyTools(ztickyFolder, true);
+          debugger
+          // var myTools = await OfficeGraph.getMyTools(ztickyFolder, true);
+          myTools.push(folder)
+          
+          var keys = _.keys(layouts)
+          keys.forEach(key => {
+            layouts[key].push(
+              {
+                x: 0,
+                y: Infinity,
+                w:3,
+                h:3,
+               
+                i: layouts[key].length.toString(),
+
+                static: 0 //Math.random() < 0.05,
+              }
+
+            )
+          });
+          setLayouts(layouts)
+          
           //
           setMyTools(myTools);
         } catch (error) {
@@ -133,13 +156,9 @@ export default function App() {
       : "https://api.jumpto365.com/table/hexatown.com/PTO365";
     setTableUrl("https://pro.jumpto365.com/@/hexatown.com/PTO365");
     readGrid(href, "hexatown.com/PTO365");
-
-  
-
-
   }, []);
 
-  function readGrid(href,tableId) {
+  function readGrid(href, tableId) {
     axios.get(href).then(({ data }) => {
       setTitlegraphics(data.titlegraphics);
       var tiles = [];
@@ -167,7 +186,7 @@ export default function App() {
           return row.forEach(cell => {
             if (cell.tile && cell.tile.title) {
               var tile = { ...cell.tile };
-              tile.tableId = tableId
+              tile.tableId = tableId;
               tile.correlation =
                 href +
                 "#" +
@@ -223,12 +242,33 @@ export default function App() {
         .then(async ztickyFolder => {
           setZtickyFolder(ztickyFolder);
           queueCount++;
-          var myTools = await OfficeGraph.getMyTools(ztickyFolder, refresh);
-          var layouts = await OfficeGraph.readLayouts(ztickyFolder)
+         
+          var [layouts,properties,version] = await OfficeGraph.readLayouts(ztickyFolder);
+          //debugger
+          var myTools = []
+          if (version < 0){
+            var tileFolders = await OfficeGraph.getMyTools(ztickyFolder, refresh);
+            myTools =  tileFolders.map(folder=>{
+              debugger
+              return {title: folder.tile ? folder.tile.title : folder.name, tile:folder.tile}
+            })
+          }else{
+            debugger
+            myTools = properties.tiles.map(tile=>{
+              debugger
+              if (!tile) return null
+              
+              return {title:tile.title,tile}
+            })
+
+          }
+         debugger
+          
+
           queueCount--;
           if (queueCount === 0) setRefresing(false);
           setMyTools(myTools);
-          setLayouts(layouts)
+          setLayouts(layouts);
         })
         .catch(error => {
           queueCount--;
@@ -243,15 +283,15 @@ export default function App() {
   }
 
   function matchFilter(tile) {
-    var match =
+    var match = tile &&
       tile.title &&
       tile.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
     if (!match)
-      match =
+      match = tile &&
         tile.inShort &&
         tile.inShort.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
     if (!match)
-      match =
+      match =tile &&
         tile.subTitle &&
         tile.subTitle.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
 
@@ -285,15 +325,15 @@ export default function App() {
 
     return match;
   }
-  function persistLayouts(layouts){
-    setLayouts(layouts)
-    OfficeGraph.writeLayouts(ztickyFolder,  layouts).then()
-    .catch(error => {
-     
-      errors.push({ context: "  OfficeGraph.writeLayouts()", error });
-      setErrors(errors);
-    });
-
+  function persistLayouts(layouts) {
+    setLayouts(layouts);
+    var tiles = myTools.map(tool=>{return tool.tile})
+    OfficeGraph.writeLayouts(ztickyFolder, layouts,{tiles})
+      .then()
+      .catch(error => {
+        errors.push({ context: "  OfficeGraph.writeLayouts()", error });
+        setErrors(errors);
+      });
   }
 
   var filteredTiles = !filter ? tiles : [];
@@ -487,7 +527,7 @@ export default function App() {
                         placeholder="Select an area"
                         xlabel="Catalogue"
                         onChanged={(option, index) => {
-                          readGrid(option.key.api,option.key.id);
+                          readGrid(option.key.api, option.key.id);
                           setTableUrl(option.key.web);
                           //debugger
                         }}
@@ -616,7 +656,7 @@ export default function App() {
                       })}
                     </div>
                   )}
-                </PivotItem> 
+                </PivotItem>
                 {memberships.length > 0 && (
                   <PivotItem
                     headerText="Teams"
@@ -631,7 +671,38 @@ export default function App() {
                 )}
                 <PivotItem headerText="Grid">
                   <div>
-                    <ToolboxLayout tools={myTools}  layouts={layouts} persist={persistLayouts}/>
+                  <div style={{ display: "flex", marginTop: "8px" }}>
+                    <div style={{ marginLeft: "16px", flexGrow: 1 }}>
+                      
+                      
+                    </div>
+                    <div style={{ marginLeft: "16px" }}>
+                      <div style={{ display: "flex" }}>
+                        <div style={{ padding: "8px" }}>Edit Layout</div>
+                        <div>
+                          <Toggle
+                          
+                            checked={editingLayout}
+                            style={{ marginTop: "8px" }}
+                          
+                            onChange={(e, checked) => {
+                              setEditingLayout(checked);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                    <ToolboxLayout
+                      tools={myTools}
+                      layouts={layouts}
+                      persist={persistLayouts}
+                      editingLayout={editingLayout}
+                      onTileClick={tile => {
+                        setCurrentTile(tile);
+                        setIsZoomed(true);
+                      }}
+                    />
                   </div>
                 </PivotItem>
                 {errors.length !== 0 && (

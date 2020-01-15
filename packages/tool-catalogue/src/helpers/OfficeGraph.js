@@ -64,7 +64,7 @@ const options = {
 };
 
 var buffer = {
-  grid: { pending: false }
+  layouts: { pending: false }
 };
 
 function getClient() {
@@ -222,10 +222,9 @@ function getTileXLSX(toolFolder) {
   });
 }
 
-function getFile(folder,filename) {
+function getFile(folder, filename) {
   return new Promise(async (resolve, reject) => {
     try {
-
       const client = getClient();
 
       let tile = await client
@@ -240,26 +239,26 @@ function getFile(folder,filename) {
   });
 }
 function getMyTool(toolFolder) {
-  return getFile(toolFolder,"tile.json")
-  // return new Promise(async (resolve, reject) => {
-  //   try {
-  //     var tileData = await getTileXLSX(toolFolder);
-  //     if (tileData) {
-  //       return resolve(tileData);
-  //     }
+  
+  return new Promise(async (resolve, reject) => {
+    try {
+      var tileData = await getTileXLSX(toolFolder);
+      if (tileData) {
+        return resolve(tileData);
+      }
+      resolve({});
+      // const client = getClient();
 
-  //     const client = getClient();
-
-  //     let tile = await client
-  //       .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
-  //       .get();
-  //     axios.get(tile["@microsoft.graph.downloadUrl"]).then(response => {
-  //       resolve(response.data);
-  //     });
-  //   } catch (error) {
-  //     reject(error);
-  //   }
-  // });
+      // let tile = await client
+      //   .api(`/me/drive/items/${toolFolder.id}:/tile.json:`)
+      //   .get();
+      // axios.get(tile["@microsoft.graph.downloadUrl"]).then(response => {
+      //   resolve(response.data);
+      // });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 function addTile(ztickyFolder, tile) {
   return new Promise(async (resolve, reject) => {
@@ -278,9 +277,9 @@ function addTile(ztickyFolder, tile) {
         .api(`/me/drive/items/${ztickyFolder.id}/children`)
         .post(driveItem);
 
-      let file = await client
-        .api(`/me/drive/items/${folder.id}:/tile.json:/content`)
-        .put(tile);
+      // let file = await client
+      //   .api(`/me/drive/items/${folder.id}:/tile.json:/content`)
+      //   .put(tile);
 
       var props = _.keys(tile);
       var data = [];
@@ -301,21 +300,21 @@ function addTile(ztickyFolder, tile) {
 
         .put(wbout);
 
-      axios
-        .request({
-          responseType: "arraybuffer",
-          url: tile.icon,
-          method: "get"
-        })
-        .then(async response => {
-          await client
-            .api(`/me/drive/items/${folder.id}:/image.png:/content`)
-            .put(response.data);
-        })
-        .catch(error => {
-          // debugger;
-        });
-
+      // axios
+      //   .request({
+      //     responseType: "arraybuffer",
+      //     url: tile.icon,
+      //     method: "get"
+      //   })
+      //   .then(async response => {
+      //     await client
+      //       .api(`/me/drive/items/${folder.id}:/image.png:/content`)
+      //       .put(response.data);
+      //   })
+      //   .catch(error => {
+      //     // debugger;
+      //   });
+      folder.tile = tile
       return resolve(folder);
     } catch (error) {
       debugger;
@@ -426,58 +425,65 @@ function teamMemberships() {
 
 function delaywriteLayouts() {
   setTimeout(() => {
-    console.log("delaywriteLayouts")
-    if (!buffer.grid.pending){ return}
-    if ( buffer.grid.writing) {
+    console.log("delaywriteLayouts");
+    if (!buffer.layouts.pending) {
+      return;
+    }
+    if (buffer.layouts.writing) {
       return delaywriteLayouts();
     }
-    writeLayouts(buffer.grid.folder,buffer.grid.data)
+    writeLayouts(buffer.layouts.folder, buffer.layouts.data);
   }, 500);
 }
-function writeLayouts(folder, grid) {
-  return new Promise(async (resolve, reject) => {
-    console.log("writeLayouts")
-    if (buffer.grid.writing) {
+function writeLayouts(folder, layouts, properties) {
+  var data = { version: 1, layouts, properties };
 
-      if (_.isEqual(buffer.grid.current,grid)){
-        console.log("writeLayouts no changes")
-        return resolve()
+  return new Promise(async (resolve, reject) => {
+    console.log("writeLayouts");
+    if ( buffer && buffer.layouts &&   buffer.layouts.writing) {
+      if (_.isEqual(buffer.layouts.data, data)) {
+        console.log("writeLayouts no changes");
+        return resolve();
       }
-      buffer.grid.pending = true;
-      buffer.grid.data = grid;
-      buffer.grid.folder = folder
+      buffer.layouts.pending = true;
+      buffer.layouts.data = data;
+      buffer.layouts.folder = folder;
       delaywriteLayouts();
       return resolve();
     }
-   
-    
+
     try {
-      buffer.grid.writing = true;
-      buffer.grid.current = grid;
+      buffer.layouts.writing = true;
+      buffer.layouts.current = data;
       const client = getClient();
-      console.log("writeLayouts > got Client")
+      console.log("writeLayouts > got Client");
       await client
         .api(`/me/drive/items/${folder.id}:/layouts.json:/content`)
-        .put(grid);
-        console.log("writeLayouts > wrote")
+        .put(data);
+      console.log("writeLayouts > wrote");
 
       resolve();
     } catch (error) {
-      console.log("writeLayouts > error",error)
+      console.log("writeLayouts > error", error);
       return reject(error);
     } finally {
-      buffer.grid.writing = false;
+      buffer.layouts.writing = false;
     }
   });
 }
 function readLayouts(ztickyFolder) {
   return new Promise(async (resolve, reject) => {
-    var grid = await getFile(ztickyFolder,"layouts.json")
-    resolve(grid)
+    var data = await getFile(ztickyFolder, "layouts.json");
+    if (data) {
+      resolve([data.layouts, data.properties, data.version]);
+    } else {
+      const emptyResult = [{ lg: [] },   {}, -1 ];
+      resolve(emptyResult);
+    }
+
     try {
     } catch (error) {
-
-      resolve(null)
+      resolve(null);
     }
   });
 }
