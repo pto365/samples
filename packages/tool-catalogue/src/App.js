@@ -366,28 +366,28 @@ export default function App() {
   };
   return (
     <div>
-      <CommandBar
+      {/* <CommandBar
         // items={_items}
         // overflowItems={_overflowItems}
         // overflowButtonProps={overflowProps}
         farItems={[
-          {
-            key: "tile",
-            text: "Grid view",
-            // This needs an ariaLabel since it's icon-only
-            ariaLabel: "Filter view",
-            iconOnly: true,
-            iconProps: { iconName: "Filter" },
-            onClick: () => {
-              if (showFilterOptions) {
-                setFilter("");
-              }
-              setShowFilterOptions(!showFilterOptions);
-            }
-          }
+          // {
+          //   key: "tile",
+          //   text: "Grid view",
+          //   // This needs an ariaLabel since it's icon-only
+          //   ariaLabel: "Filter view",
+          //   iconOnly: true,
+          //   iconProps: { iconName: "Filter" },
+          //   onClick: () => {
+          //     if (showFilterOptions) {
+          //       setFilter("");
+          //     }
+          //     setShowFilterOptions(!showFilterOptions);
+          //   }
+          // }
         ]}
         ariaLabel="Use left and right arrow keys to navigate between commands"
-      />
+      /> */}
       <div style={{ paddingRight: "20px", paddingLeft: "20px" }}>
         {" "}
         {progress && (
@@ -487,7 +487,7 @@ export default function App() {
                               highlightStyle={{ backgroundColor: "yellow" }}
                               onClick={tile => {
                                 // addTile(tile)
-                                debugger
+                               
                                 if (tile.jumpto){
                                   return window.open(tile.jumpto,"_blank")
                                 }
@@ -675,6 +675,9 @@ export default function App() {
                               }
                             }}
                             onClick={tile => {
+                              if (tile.jumpto){
+                                return window.open(tile.jumpto,"_blank")
+                              }
                               setCurrentTile(tile);
                               setIsZoomed(true);
                             }}
@@ -696,7 +699,7 @@ export default function App() {
                     />
                   </PivotItem>
                 )}
-                {myTools.length > 0 && 
+                {false && myTools.length > 0 && 
                 <PivotItem headerText="Grid"  key="grid">
                   <div>
                   <div style={{ display: "flex", marginTop: "8px" }}>
