@@ -72,6 +72,7 @@ function get(path) {
   return new Promise(async (resolve, reject) => {
     const client = getClient();
     try {
+      
       let data = await client.api(path).get();
 
       return resolve(data);
@@ -84,9 +85,16 @@ function me() {
   return get("/me");
 }
 
+function myExtentions() {
+  return get("/me/extensions");
+}
+
+function alerts() {
+  return get("/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/Service%20Announcements/items");
+}
 
 export default {
-  me
+  me,myExtentions,alerts
   
 };
 

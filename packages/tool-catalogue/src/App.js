@@ -82,12 +82,13 @@ export default function App() {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [tableUrl, setTableUrl] = useState("");
   const [layouts, setLayouts] = useState({});
+  const [currentPivot, setCurrentPivot] = useState("pinned");
   const addTile = tile => {
     setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
       .then(async folder => {
         try {
-          debugger
+          
           // var myTools = await OfficeGraph.getMyTools(ztickyFolder, true);
           myTools.push(folder)
           
@@ -249,21 +250,21 @@ export default function App() {
           if (version < 0){
             var tileFolders = await OfficeGraph.getMyTools(ztickyFolder, refresh);
             myTools =  tileFolders.map(folder=>{
-              debugger
+  
               return {title: folder.tile ? folder.tile.title : folder.name, tile:folder.tile}
             })
           }else{
-            debugger
+            
             myTools = properties.tiles.map(tile=>{
-              debugger
+              
               if (!tile) return null
               
               return {title:tile.title,tile}
             })
 
           }
-         debugger
-          
+         
+
 
           queueCount--;
           if (queueCount === 0) setRefresing(false);
@@ -454,9 +455,17 @@ export default function App() {
               {refreshing && <>Loading</>}
             </div>
             <div style={{ flexGrow: "1" }}>
-              <Pivot style={{ padding: "0px" }}>
+              <Pivot style={{ padding: "0px" }} selectedKey={currentPivot}
+                                 onLinkClick={(e,pivot,x)=>{
+                                  // debugger
+                                  // setCurrentPivot(pivot.key)
+                                }}
+              
+              >
                 {filteredMyTools.length > 0 && (
                   <PivotItem
+ 
+                    key="pinned"
                     headerText="Pinned"
                     itemCount={filteredMyTools.length}
                   >
@@ -478,6 +487,10 @@ export default function App() {
                               highlightStyle={{ backgroundColor: "yellow" }}
                               onClick={tile => {
                                 // addTile(tile)
+                                debugger
+                                if (tile.jumpto){
+                                  return window.open(tile.jumpto,"_blank")
+                                }
                                 setCurrentTile(tile);
                                 setIsZoomed(true);
                               }}
@@ -488,7 +501,7 @@ export default function App() {
                     </div>
                   </PivotItem>
                 )}
-                {siteUrl && (
+                {/* {siteUrl && (
                   <PivotItem
                     headerText="Site"
                     itemCount={filteredSiteLinks.length}
@@ -516,16 +529,17 @@ export default function App() {
                       disabled={!siteUrlHref && !siteUrlLabel ? true : false}
                     />
                   </PivotItem>
-                )}
+                )} */}
                 <PivotItem
+                key="catalogue"
                   headerText="Catalogue"
                   itemCount={filteredTiles.length}
                 >
                   <div style={{ display: "flex", marginTop: "8px" }}>
-                    <div style={{ marginLeft: "16px", flexGrow: 1 }}>
+                    <div style={{ marginLeft: "16px", flexGrow: 0 }}>
                       <Dropdown
                         placeholder="Select an area"
-                        xlabel="Catalogue"
+                        label="Area"
                         onChanged={(option, index) => {
                           readGrid(option.key.api, option.key.id);
                           setTableUrl(option.key.web);
@@ -602,7 +616,20 @@ export default function App() {
                         ]}
                         styles={dropdownStyles}
                       />
-                    </div>{" "}
+                    </div>
+                    <div style={{ padding: "0px",marginLeft:"8px",flexGrow:1 }}>
+                  <TextField
+                  style={{maxWidth:"300px"}}
+                    label="Filter"
+                    value={filter}
+                    onChange={(e, newValue) => {
+                      setFilter(newValue);
+                    }}
+                    placeholder="Filter the list of tools"
+                    iconProps={{ iconName: "Filter" }}
+                  />
+                </div>
+                    {" "}
                     <div style={{ marginLeft: "16px" }}>
                       <div style={{ display: "flex" }}>
                         <div style={{ padding: "8px" }}>Table view</div>
@@ -669,7 +696,8 @@ export default function App() {
                     />
                   </PivotItem>
                 )}
-                <PivotItem headerText="Grid">
+                {myTools.length > 0 && 
+                <PivotItem headerText="Grid"  key="grid">
                   <div>
                   <div style={{ display: "flex", marginTop: "8px" }}>
                     <div style={{ marginLeft: "16px", flexGrow: 1 }}>
@@ -704,7 +732,7 @@ export default function App() {
                       }}
                     />
                   </div>
-                </PivotItem>
+                </PivotItem>}
                 {errors.length !== 0 && (
                   <PivotItem
                     headerText="Developer feedback"

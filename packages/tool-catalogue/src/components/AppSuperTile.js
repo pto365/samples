@@ -56,11 +56,11 @@ export const AppSuperTile = props => {
   </div>
   
   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        {tile.jumpto && (<a style={{ height: 24 }} className="button" href={tile.jumpto} rel="noopener noreferrer"  target="_blank">
+        {/* {tile.jumpto && (<a style={{ height: 24 }} className="button" href={tile.jumpto} rel="noopener noreferrer"  target="_blank">
           Jump to
-            </a>)}
+            </a>)} */}
         {tile.externalArticle && (<a style={{ height: 24 }} className="button" href={tile.externalArticle} rel="noopener noreferrer"  target="_blank">
-          Details
+           More info
             </a>)}
       </div>
   </div></>);

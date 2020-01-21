@@ -56,6 +56,9 @@ class ZTICKYBAR {
     this._targetOrigin = "*";
   }
 
+  /**
+   * Returns a promise of returning an array of tiles
+   */
   tools = () => {
     return new Promise((resolve, reject) => {
       resolve([]);
@@ -64,7 +67,7 @@ class ZTICKYBAR {
   /**
    * setNotificationCount Update the visual notification counter on a given tile
    * @param {*} tileId Number of the tile
-   * @param {*} count  Count to set, only whole numbers (integers) are accepted
+   * @param {*} count  Count to set, only whole numbers (integers) are accepted. Setting the value to 0 will hide the notification counter
    */
   setNotificationCount = (tileId, count) => {
     if (window.parent) {
@@ -92,19 +95,42 @@ export default function Alarms() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [errors, setErrors] = useState([]);
   const [me, setMe] = useState({});
+  const [alerts, setAlerts] = useState([]);
+
+  
   useEffect(() => {
-    OfficeGraph.me()
+
+  
+
+    OfficeGraph.myExtentions()
       .then(m => {
         setMe(m);
-
         var ztickyBar = ZTICKYBAR.init();
-        ztickyBar.setNotificationCount(3, 2);
+       // ztickyBar.setNotificationCount(3, 2);
       })
       .catch(error => {
         errors.push({ context: "OfficeGraph.me() ", error });
         setErrors(errors);
       });
+
+
+      OfficeGraph.alerts()
+      .then(data => {
+        debugger
+        //setAlerts()
+        
+        
+      })
+      .catch(error => {
+        errors.push({ context: "OfficeGraph.alerts() ", error });
+        setErrors(errors);
+      });
+
+
   }, []);
+
+
+  
 
   return (
     <div>
