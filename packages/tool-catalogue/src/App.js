@@ -64,13 +64,15 @@ export default function App() {
   const [titlegraphics, setTitlegraphics] = useState("");
   const [filter, setFilter] = useState("");
   const [tiles, setTiles] = useState([]);
-
+  const [useAuthentication, setUseAuthentication] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentTile, setCurrentTile] = useState(null);
   const [me, setMe] = useState({});
   const [ztickyFolder, setZtickyFolder] = useState({});
   const [myTools, setMyTools] = useState([]);
   const [ztickyRef, setZtickyRef] = useState("");
+  const [tileSize, setTileSize] = useState(1);
   const [errors, setErrors] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [siteUrlLabel, setSiteUrlLabel] = useState("");
@@ -88,28 +90,24 @@ export default function App() {
     OfficeGraph.addTile(ztickyFolder, tile)
       .then(async folder => {
         try {
-          
           // var myTools = await OfficeGraph.getMyTools(ztickyFolder, true);
-          myTools.push(folder)
-          
-          var keys = _.keys(layouts)
+          myTools.push(folder);
+
+          var keys = _.keys(layouts);
           keys.forEach(key => {
-            layouts[key].push(
-              {
-                x: 0,
-                y: Infinity,
-                w:3,
-                h:3,
-               
-                i: layouts[key].length.toString(),
+            layouts[key].push({
+              x: 0,
+              y: Infinity,
+              w: 3,
+              h: 3,
 
-                static: 0 //Math.random() < 0.05,
-              }
+              i: layouts[key].length.toString(),
 
-            )
+              static: 0 //Math.random() < 0.05,
+            });
           });
-          setLayouts(layouts)
-          
+          setLayouts(layouts);
+
           //
           setMyTools(myTools);
         } catch (error) {
@@ -138,16 +136,19 @@ export default function App() {
 
   useEffect(() => {
     // db.table("myTiles").toArray().then(tiles=>{setMyTiles(tiles)})
-    initGraph();
-    OfficeGraph.me()
-      .then(userDetails => {
-        setMe(userDetails);
-        window.document.title = userDetails.displayName + " Tools";
-      })
-      .catch(error => {
-        errors.push({ context: "OfficeGraph.me()", error });
-        setErrors(errors);
-      });
+    if (useAuthentication) {
+      initGraph();
+      OfficeGraph.me()
+        .then(userDetails => {
+          setMe(userDetails);
+          window.document.title = userDetails.displayName + " Tools";
+        })
+        .catch(error => {
+          errors.push({ context: "OfficeGraph.me()", error });
+          setErrors(errors);
+        });
+     
+    }
     var search = getSearchParametersFromHRef(window.location.href);
     if (search.ztickyref) {
       setZtickyRef(search.ztickyref);
@@ -243,28 +244,30 @@ export default function App() {
         .then(async ztickyFolder => {
           setZtickyFolder(ztickyFolder);
           queueCount++;
-         
-          var [layouts,properties,version] = await OfficeGraph.readLayouts(ztickyFolder);
+
+          var [layouts, properties, version] = await OfficeGraph.readLayouts(
+            ztickyFolder
+          );
           //debugger
-          var myTools = []
-          if (version < 0){
-            var tileFolders = await OfficeGraph.getMyTools(ztickyFolder, refresh);
-            myTools =  tileFolders.map(folder=>{
-  
-              return {title: folder.tile ? folder.tile.title : folder.name, tile:folder.tile}
-            })
-          }else{
-            
-            myTools = properties.tiles.map(tile=>{
-              
-              if (!tile) return null
-              
-              return {title:tile.title,tile}
-            })
+          var myTools = [];
+          if (version < 0) {
+            var tileFolders = await OfficeGraph.getMyTools(
+              ztickyFolder,
+              refresh
+            );
+            myTools = tileFolders.map(folder => {
+              return {
+                title: folder.tile ? folder.tile.title : folder.name,
+                tile: folder.tile
+              };
+            });
+          } else {
+            myTools = properties.tiles.map(tile => {
+              if (!tile) return null;
 
+              return { title: tile.title, tile };
+            });
           }
-         
-
 
           queueCount--;
           if (queueCount === 0) setRefresing(false);
@@ -284,15 +287,18 @@ export default function App() {
   }
 
   function matchFilter(tile) {
-    var match = tile &&
+    var match =
+      tile &&
       tile.title &&
       tile.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
     if (!match)
-      match = tile &&
+      match =
+        tile &&
         tile.inShort &&
         tile.inShort.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
     if (!match)
-      match =tile &&
+      match =
+        tile &&
         tile.subTitle &&
         tile.subTitle.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
 
@@ -328,8 +334,10 @@ export default function App() {
   }
   function persistLayouts(layouts) {
     setLayouts(layouts);
-    var tiles = myTools.map(tool=>{return tool.tile})
-    OfficeGraph.writeLayouts(ztickyFolder, layouts,{tiles})
+    var tiles = myTools.map(tool => {
+      return tool.tile;
+    });
+    OfficeGraph.writeLayouts(ztickyFolder, layouts, { tiles })
       .then()
       .catch(error => {
         errors.push({ context: "  OfficeGraph.writeLayouts()", error });
@@ -455,16 +463,16 @@ export default function App() {
               {refreshing && <>Loading</>}
             </div>
             <div style={{ flexGrow: "1" }}>
-              <Pivot style={{ padding: "0px" }} selectedKey={currentPivot}
-                                 onLinkClick={(e,pivot,x)=>{
-                                  // debugger
-                                  // setCurrentPivot(pivot.key)
-                                }}
-              
+              <Pivot
+                style={{ padding: "0px" }}
+                selectedKey={currentPivot}
+                onLinkClick={(e, pivot, x) => {
+                  // debugger
+                  // setCurrentPivot(pivot.key)
+                }}
               >
                 {filteredMyTools.length > 0 && (
                   <PivotItem
- 
                     key="pinned"
                     headerText="Pinned"
                     itemCount={filteredMyTools.length}
@@ -480,16 +488,17 @@ export default function App() {
                               };
                           return (
                             <AppSuperTile
+                            tileSize={tileSize}
                               isPinned={true}
                               key={key}
                               tile={tile}
                               filter={filter}
-                              highlightStyle={{ backgroundColor: "yellow" }}
+                              highlightStyle={{ backgroundColor: "yellow",color:"#333" }}
                               onClick={tile => {
                                 // addTile(tile)
-                               
-                                if (tile.jumpto){
-                                  return window.open(tile.jumpto,"_blank")
+
+                                if (tile.jumpto) {
+                                  return window.open(tile.jumpto, "_blank");
                                 }
                                 setCurrentTile(tile);
                                 setIsZoomed(true);
@@ -531,7 +540,7 @@ export default function App() {
                   </PivotItem>
                 )} */}
                 <PivotItem
-                key="catalogue"
+                  key="catalogue"
                   headerText="Catalogue"
                   itemCount={filteredTiles.length}
                 >
@@ -617,19 +626,46 @@ export default function App() {
                         styles={dropdownStyles}
                       />
                     </div>
-                    <div style={{ padding: "0px",marginLeft:"8px",flexGrow:1 }}>
-                  <TextField
-                  style={{maxWidth:"300px"}}
-                    label="Filter"
-                    value={filter}
-                    onChange={(e, newValue) => {
-                      setFilter(newValue);
-                    }}
-                    placeholder="Filter the list of tools"
-                    iconProps={{ iconName: "Filter" }}
-                  />
-                </div>
-                    {" "}
+                    <div
+                      style={{ padding: "0px", marginLeft: "8px", flexGrow: 1 }}
+                    >
+                      <TextField
+                        style={{ maxWidth: "300px" }}
+                        label="Filter"
+                        value={filter}
+                        onChange={(e, newValue) => {
+                          setFilter(newValue);
+                        }}
+                        placeholder="Filter the list of tools"
+                        iconProps={{ iconName: "Filter" }}
+                      />
+                    </div>{" "}
+                    <div style={{ marginLeft: "16px", flexGrow: 0 }}>
+                      <Dropdown
+                        placeholder="Select tile size"
+                        selectedKey={tileSize}
+                        label="View as"
+                        onChanged={(option, index) => {
+                          
+                          setTileSize(option.key);
+                          //debugger
+                        }}
+                       
+                        options={[
+                          {
+                            key: 0,
+                            text: "Tile"
+                           
+                          },
+                          {
+                            key: 1,
+                            text: "Small"
+                           
+                          }
+                        ]}
+                        styles={dropdownStyles}
+                      />
+                    </div>
                     <div style={{ marginLeft: "16px" }}>
                       <div style={{ display: "flex" }}>
                         <div style={{ padding: "8px" }}>Table view</div>
@@ -665,9 +701,10 @@ export default function App() {
                       {filteredTiles.map((tile, key) => {
                         return (
                           <AppSuperTile
+                          tileSize={tileSize}
                             key={key}
                             filter={filter}
-                            highlightStyle={{ backgroundColor: "yellow" }}
+                            highlightStyle={{ backgroundColor: "yellow" ,color:"#333" }}
                             tile={tile}
                             onPinnedClicked={props => {
                               if (props.tile) {
@@ -675,8 +712,8 @@ export default function App() {
                               }
                             }}
                             onClick={tile => {
-                              if (tile.jumpto){
-                                return window.open(tile.jumpto,"_blank")
+                              if (tile.jumpto) {
+                                return window.open(tile.jumpto, "_blank");
                               }
                               setCurrentTile(tile);
                               setIsZoomed(true);
@@ -699,43 +736,39 @@ export default function App() {
                     />
                   </PivotItem>
                 )}
-                {false && myTools.length > 0 && 
-                <PivotItem headerText="Grid"  key="grid">
-                  <div>
-                  <div style={{ display: "flex", marginTop: "8px" }}>
-                    <div style={{ marginLeft: "16px", flexGrow: 1 }}>
-                      
-                      
-                    </div>
-                    <div style={{ marginLeft: "16px" }}>
-                      <div style={{ display: "flex" }}>
-                        <div style={{ padding: "8px" }}>Edit Layout</div>
-                        <div>
-                          <Toggle
-                          
-                            checked={editingLayout}
-                            style={{ marginTop: "8px" }}
-                          
-                            onChange={(e, checked) => {
-                              setEditingLayout(checked);
-                            }}
-                          />
+                {false && myTools.length > 0 && (
+                  <PivotItem headerText="Grid" key="grid">
+                    <div>
+                      <div style={{ display: "flex", marginTop: "8px" }}>
+                        <div style={{ marginLeft: "16px", flexGrow: 1 }}></div>
+                        <div style={{ marginLeft: "16px" }}>
+                          <div style={{ display: "flex" }}>
+                            <div style={{ padding: "8px" }}>Edit Layout</div>
+                            <div>
+                              <Toggle
+                                checked={editingLayout}
+                                style={{ marginTop: "8px" }}
+                                onChange={(e, checked) => {
+                                  setEditingLayout(checked);
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
+                      <ToolboxLayout
+                        tools={myTools}
+                        layouts={layouts}
+                        persist={persistLayouts}
+                        editingLayout={editingLayout}
+                        onTileClick={tile => {
+                          setCurrentTile(tile);
+                          setIsZoomed(true);
+                        }}
+                      />
                     </div>
-                  </div>
-                    <ToolboxLayout
-                      tools={myTools}
-                      layouts={layouts}
-                      persist={persistLayouts}
-                      editingLayout={editingLayout}
-                      onTileClick={tile => {
-                        setCurrentTile(tile);
-                        setIsZoomed(true);
-                      }}
-                    />
-                  </div>
-                </PivotItem>}
+                  </PivotItem>
+                )}
                 {errors.length !== 0 && (
                   <PivotItem
                     headerText="Developer feedback"

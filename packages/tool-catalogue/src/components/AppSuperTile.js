@@ -7,6 +7,60 @@ export const AppSuperTile = props => {
   const [html, setHtml] = useState("");
  
   return (<>
+
+  {props.tileSize===1 &&
+    <div style={{border:"0px dashed grey",margin:10,maxWidth:"300px"}}>
+     
+     <div style={{
+       margin: 10,
+       padding: 10,
+       backgroundColor: tile.color,
+       color: tile.textcolor,
+       width: 300,
+       height: 70,
+       maxHeight: 70,
+       overflow: "hide"
+     }}>
+       <div style={{ cursor: "pointer" }} onClick={() => {
+         if (props.onClick){
+           props.onClick(tile);
+                }
+   
+       }}>
+         <div style={{display:"flex"}}>
+           
+         <div style={{  margin: 8, marginTop:8, height: 40 }}>
+           <img style={{ height: "auto", width: 40 }} src={tile.icon} />
+         </div>
+           <div style={{flexGrow:1,lineHeight:"40px",marginTop:"6px",marginLeft:"4px", fontSize:"24px"}}>
+           <Highlight text={tile.title} filter={props.filter} style={props.highlightStyle} /> 
+           </div>
+          
+         <div style={{alignItems:"flex-end"}}>
+         <i
+                   style={{cursor:"pointer",display:"none"}}
+                     class={props.isPinned ? "ms-Icon ms-Icon--PinnedFill" : "ms-Icon ms-Icon--Pinned"}
+                     onClick={(e) => {
+                       if (props.onPinnedClicked){
+                         e.preventDefault()
+                         e.stopPropagation()
+                         props.onPinnedClicked(props)
+                       }
+                       
+                     }}
+                     aria-hidden="true"
+                   ></i> 
+         </div> </div>
+       
+         {/* <Tags references={tile.references} /> */}
+   
+       </div>
+     </div>
+     
+
+     </div>
+  }
+  {props.tileSize === 0 &&
   <div style={{border:"0px dashed grey",margin:10,maxWidth:"300px"}}>
      
   <div style={{
@@ -28,7 +82,7 @@ export const AppSuperTile = props => {
       <div style={{display:"flex"}}><div style={{flexGrow:1}}><Highlight text={tile.title} filter={props.filter} style={props.highlightStyle} /> </div>
       <div style={{alignItems:"flex-end"}}>
       <i
-                style={{cursor:"pointer"}}
+                style={{cursor:"pointer",display:"none"}}
                   class={props.isPinned ? "ms-Icon ms-Icon--PinnedFill" : "ms-Icon ms-Icon--Pinned"}
                   onClick={(e) => {
                     if (props.onPinnedClicked){
@@ -63,7 +117,9 @@ export const AppSuperTile = props => {
            More info
             </a>)}
       </div>
-  </div></>);
+  </div>
+  }
+  </>);
 };
 AppSuperTile.propTypes = {
   tile: PropTypes.object,
@@ -71,5 +127,6 @@ AppSuperTile.propTypes = {
   filter : PropTypes.string,
   highlightStyle : PropTypes.object,
   isPinned : PropTypes.bool,
-  onPinnedClicked:PropTypes.func
+  onPinnedClicked:PropTypes.func,
+  tileSize:PropTypes.number
 };
