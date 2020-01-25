@@ -70,9 +70,11 @@ class ZTICKYBAR {
    * @param {*} count  Count to set, only whole numbers (integers) are accepted. Setting the value to 0 will hide the notification counter
    */
   setNotificationCount = (tileId, count) => {
-    if (window.parent) {
+    //debugger
+    var target = window.parent; // ? window.parent:window
+    if (target) {
       //  console.log(window.parent.location.href)
-      window.parent.postMessage(
+      target.postMessage(
         {
           action: "setNotificationCount",
           count,
@@ -96,48 +98,59 @@ export default function Alarms() {
   const [errors, setErrors] = useState([]);
   const [me, setMe] = useState({});
   const [alerts, setAlerts] = useState([]);
+  const [seenAlerts, setSeenAlerts] = useState({});
 
-  
-  useEffect(() => {
 
-  
-
-    OfficeGraph.myExtentions()
-      .then(m => {
-        setMe(m);
-        var ztickyBar = ZTICKYBAR.init();
-       // ztickyBar.setNotificationCount(3, 2);
-      })
+  function updateSeenAlerts(){
+debugger
+    seenAlerts.etag++
+    OfficeGraph.updateExtention(seenAlerts)
+      .then(() => {})
       .catch(error => {
-        errors.push({ context: "OfficeGraph.me() ", error });
+        errors.push({ context: "OfficeGraph.updateExtention() ", error });
         setErrors(errors);
       });
 
+  }
+  useEffect(() => {
+    OfficeGraph.myExtentions()
+      .then(m => {
+        setMe(m);
+        console.log(m.value[0].etag)
+        setSeenAlerts(m.value[0])
 
-      OfficeGraph.alerts()
+        
+
+        var ztickyBar = ZTICKYBAR.init();
+        ztickyBar.setNotificationCount(3, 2);
+      })
+      .catch(error => {
+        errors.push({ context: "OfficeGraph.myExtentions() ", error });
+        setErrors(errors);
+      });
+
+    OfficeGraph.alerts()
       .then(data => {
-        debugger
         //setAlerts()
-        
-        
       })
       .catch(error => {
         errors.push({ context: "OfficeGraph.alerts() ", error });
         setErrors(errors);
       });
-
-
   }, []);
-
-
-  
 
   return (
     <div>
       Alarms
+      <hr />
       {JSON.stringify(me)}
-      ---
+      <hr />
       {JSON.stringify(errors)}
+      <hr />
+        <button onClick={()=>{
+          updateSeenAlerts()
+        }}>updateSeenAlerts</button>
     </div>
+  
   );
 }

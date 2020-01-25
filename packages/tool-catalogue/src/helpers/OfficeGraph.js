@@ -239,7 +239,6 @@ function getFile(folder, filename) {
   });
 }
 function getMyTool(toolFolder) {
-  
   return new Promise(async (resolve, reject) => {
     try {
       var tileData = await getTileXLSX(toolFolder);
@@ -314,7 +313,7 @@ function addTile(ztickyFolder, tile) {
       //   .catch(error => {
       //     // debugger;
       //   });
-      folder.tile = tile
+      folder.tile = tile;
       return resolve(folder);
     } catch (error) {
       debugger;
@@ -435,12 +434,14 @@ function delaywriteLayouts() {
     writeLayouts(buffer.layouts.folder, buffer.layouts.data);
   }, 500);
 }
-function writeLayouts(folder, layouts, properties) {
+
+const LAYOUTSJSON = "layouts.json";
+function writeLayouts(folder, layouts, properties, useLocalStorage) {
   var data = { version: 1, layouts, properties };
 
   return new Promise(async (resolve, reject) => {
     console.log("writeLayouts");
-    if ( buffer && buffer.layouts &&   buffer.layouts.writing) {
+    if (buffer && buffer.layouts && buffer.layouts.writing) {
       if (_.isEqual(buffer.layouts.data, data)) {
         console.log("writeLayouts no changes");
         return resolve();
@@ -453,6 +454,10 @@ function writeLayouts(folder, layouts, properties) {
     }
 
     try {
+      if (useLocalStorage) {
+        localStorage.setItem(LAYOUTSJSON, JSON.stringify(data));
+        return resolve();
+      }
       buffer.layouts.writing = true;
       buffer.layouts.current = data;
       const client = getClient();
@@ -471,13 +476,26 @@ function writeLayouts(folder, layouts, properties) {
     }
   });
 }
-function readLayouts(ztickyFolder) {
+function readLayouts(ztickyFolder, useLocalStorage) {
   return new Promise(async (resolve, reject) => {
+    if (useLocalStorage) {
+      var layouts = localStorage.getItem(LAYOUTSJSON);
+      if (!layouts) {
+        return resolve(null);
+      }
+      try {
+        var data = JSON.parse(layouts);
+        return resolve([data.layouts, data.properties, data.version]);
+      } catch (error) {
+        console.log("error parsing local storagee layouts", error);
+        return resolve(null);
+      }
+    }
     var data = await getFile(ztickyFolder, "layouts.json");
     if (data) {
       resolve([data.layouts, data.properties, data.version]);
     } else {
-      const emptyResult = [{ lg: [] },   {}, -1 ];
+      const emptyResult = [{ lg: [] }, {}, -1];
       resolve(emptyResult);
     }
 

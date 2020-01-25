@@ -81,6 +81,34 @@ function get(path) {
     }
   });
 }
+function post(path,data) {
+  return new Promise(async (resolve, reject) => {
+    const client = getClient();
+    try {
+      debugger
+      let result = await client.api(path).post(data);
+      debugger
+      return resolve(result);
+    } catch (error) {
+      debugger
+      return reject(error);
+    }
+  });
+}
+function patch(path,data) {
+  return new Promise(async (resolve, reject) => {
+    const client = getClient();
+    try {
+      
+      let result = await client.api(path).patch(data);
+      
+      return resolve(result);
+    } catch (error) {
+      
+      return reject(error);
+    }
+  });
+}
 function me() {
   return get("/me");
 }
@@ -89,14 +117,25 @@ function myExtentions() {
   return get("/me/extensions");
 }
 
+function updateExtention(data) {
+  return patch(`/me/extensions/${data.id}`,data);
+}
+
+function setExtention(data) {
+  return post(`/me/extensions/${data.id}`,data);
+}
+
+
 function alerts() {
   return get("/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/Service%20Announcements/items");
 }
 
 export default {
-  me,myExtentions,alerts
+  me,myExtentions,alerts,setExtention,updateExtention
   
 };
+
+
 
 // var PTO365 = {
 //   user: msalInstance.getAccount()

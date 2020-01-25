@@ -50,7 +50,7 @@ export const AppSuperTile = props => {
       <div style={{ maxHeight: 60, height: 60, overflow: "auto" }}>
         {tile.inShort}
       </div>
-      {/* <Tags references={tile.references} /> */}
+      <Tags references={tile.references} /> 
 
     </div>
   </div>

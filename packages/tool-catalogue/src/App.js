@@ -37,7 +37,8 @@ import {
   DefaultButton,
   PrimaryButton,
   Stack,
-  IStackTokens
+  IStackTokens,
+  ShimmerElementsGroup
 } from "office-ui-fabric-react";
 import {
   Dropdown,
@@ -85,6 +86,12 @@ export default function App() {
   const [tableUrl, setTableUrl] = useState("");
   const [layouts, setLayouts] = useState({});
   const [currentPivot, setCurrentPivot] = useState("pinned");
+  const [tableApiSelected, setTableApiSelected] = useState(
+    "https://api.jumpto365.com/table/hexatown.com/PTO365"
+  );
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [groups, setGroups] = useState([]);
+
   const addTile = tile => {
     setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
@@ -147,7 +154,6 @@ export default function App() {
           errors.push({ context: "OfficeGraph.me()", error });
           setErrors(errors);
         });
-     
     }
     var search = getSearchParametersFromHRef(window.location.href);
     if (search.ztickyref) {
@@ -184,6 +190,15 @@ export default function App() {
             }
           });
         });
+
+        var g = _.keys(groups);
+        var ga = g.map(name => {
+          return { title: name, ...groups[name] };
+        });
+
+        setGroups(_.sortBy(ga, ["title"]))
+
+       
         data.grid.forEach(row => {
           return row.forEach(cell => {
             if (cell.tile && cell.tile.title) {
@@ -412,6 +427,7 @@ export default function App() {
         )}
         <img
           style={{
+            display: "none",
             height: "64px",
             margin: "13px",
             position: "fixed",
@@ -435,6 +451,7 @@ export default function App() {
             {" "}
             <div
               style={{
+                display: "none",
                 paddingRight: "8px",
                 position: "fixed",
                 bottom: "0px",
@@ -462,6 +479,32 @@ export default function App() {
               ></i>{" "}
               {refreshing && <>Loading</>}
             </div>
+            <div
+              style={{
+                position: "fixed",
+                right: 0,
+                top: 0,
+                zIndex: 32,
+                marginRight: "16px"
+              }}
+            >
+              <div style={{ display: "flex" }}>
+                <div style={{ padding: "8px", marginTop: "0px" }}>
+                  Table view
+                </div>
+                <div style={{ marginTop: "8px" }}>
+                  <Toggle
+                    xlabel="Show Table"
+                    checked={showTable}
+                    xonText="Table view On"
+                    xoffText="Table view Off"
+                    onChange={(e, checked) => {
+                      setShowTable(checked);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
             <div style={{ flexGrow: "1" }}>
               <Pivot
                 style={{ padding: "0px" }}
@@ -488,12 +531,15 @@ export default function App() {
                               };
                           return (
                             <AppSuperTile
-                            tileSize={tileSize}
+                              tileSize={tileSize}
                               isPinned={true}
                               key={key}
                               tile={tile}
                               filter={filter}
-                              highlightStyle={{ backgroundColor: "yellow",color:"#333" }}
+                              highlightStyle={{
+                                backgroundColor: "yellow",
+                                color: "#333"
+                              }}
                               onClick={tile => {
                                 // addTile(tile)
 
@@ -544,7 +590,13 @@ export default function App() {
                   headerText="Catalogue"
                   itemCount={filteredTiles.length}
                 >
-                  <div style={{ display: "flex", marginTop: "8px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      marginTop: "8px"
+                    }}
+                  >
                     <div style={{ marginLeft: "16px", flexGrow: 0 }}>
                       <Dropdown
                         placeholder="Select an area"
@@ -552,9 +604,11 @@ export default function App() {
                         onChanged={(option, index) => {
                           readGrid(option.key.api, option.key.id);
                           setTableUrl(option.key.web);
+                          setTableApiSelected(option.key.api);
+                          setSelectedGroup("");
                           //debugger
                         }}
-                        xselectedKey="https://api.jumpto365.com/table/hexatown.com/PTO365"
+                        xxselectedKey={tableApiSelected} //""
                         options={[
                           {
                             key: "fruitsHeader",
@@ -626,10 +680,28 @@ export default function App() {
                         styles={dropdownStyles}
                       />
                     </div>
+                    <div style={{ marginLeft: "16px", flexGrow: 0 }}>
+                      <Dropdown
+                        placeholder="Select a group"
+                        label="Group"
+                        onChanged={(option, index) => {
+                          setSelectedGroup(option.key);
+                        }}
+                        selectedKey={selectedGroup}
+                        options={groups ? groups.map(group => {
+                          return {
+                            key: group.groupSetting.title,
+                            text: group.groupSetting.title
+                          };
+                        }):[]}
+                        styles={dropdownStyles}
+                      />
+                    </div>
                     <div
                       style={{ padding: "0px", marginLeft: "8px", flexGrow: 1 }}
                     >
                       <TextField
+                        disabled={showTable}
                         style={{ maxWidth: "300px" }}
                         label="Filter"
                         value={filter}
@@ -642,55 +714,45 @@ export default function App() {
                     </div>{" "}
                     <div style={{ marginLeft: "16px", flexGrow: 0 }}>
                       <Dropdown
+                        disabled={showTable}
                         placeholder="Select tile size"
                         selectedKey={tileSize}
                         label="View as"
                         onChanged={(option, index) => {
-                          
                           setTileSize(option.key);
                           //debugger
                         }}
-                       
                         options={[
                           {
                             key: 0,
                             text: "Tile"
-                           
                           },
                           {
                             key: 1,
                             text: "Small"
-                           
                           }
                         ]}
                         styles={dropdownStyles}
                       />
                     </div>
-                    <div style={{ marginLeft: "16px" }}>
-                      <div style={{ display: "flex" }}>
-                        <div style={{ padding: "8px" }}>Table view</div>
-                        <div>
-                          <Toggle
-                            xlabel="Show Table"
-                            checked={showTable}
-                            style={{ marginTop: "8px" }}
-                            xonText="Table view On"
-                            xoffText="Table view Off"
-                            onChange={(e, checked) => {
-                              setShowTable(checked);
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   {showTable && (
                     <>
-                      {tableUrl}
+                      <div style={{ textAlign: "right" }}>
+                        <i
+                          style={{ cursor: "pointer", padding: "4px" }}
+                          class="ms-Icon ms-Icon--OpenInNewWindow"
+                          onClick={() => {
+                            window.open(tableUrl, "_blank");
+                          }}
+                          aria-hidden="true"
+                        ></i>
+                      </div>
                       <iframe
                         style={{
-                          height: "calc(100vh - 300px",
-                          width: "calc(100vw - 100px"
+                          border: "0",
+                          height: "calc(100vh - 150px",
+                          width: "95vw"
                         }}
                         src={tableUrl}
                       ></iframe>
@@ -699,12 +761,26 @@ export default function App() {
                   {!showTable && (
                     <div style={{ display: "flex", flexWrap: "wrap" }}>
                       {filteredTiles.map((tile, key) => {
+                        if (selectedGroup){
+                          var match = false
+                          
+                          if (!tile.references) return <></>
+                          tile.references.forEach(r=>{
+                            if (r.title===selectedGroup){
+                              match = true
+                            }
+                          })
+                          if (!match) return <></>
+                        }
                         return (
                           <AppSuperTile
-                          tileSize={tileSize}
+                            tileSize={tileSize}
                             key={key}
                             filter={filter}
-                            highlightStyle={{ backgroundColor: "yellow" ,color:"#333" }}
+                            highlightStyle={{
+                              backgroundColor: "yellow",
+                              color: "#333"
+                            }}
                             tile={tile}
                             onPinnedClicked={props => {
                               if (props.tile) {
