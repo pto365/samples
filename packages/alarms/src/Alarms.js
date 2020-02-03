@@ -71,7 +71,8 @@ class ZTICKYBAR {
    */
   setNotificationCount = (tileId, count) => {
     //debugger
-    var target = window.parent; // ? window.parent:window
+
+    var target = window.self !== window.top ? window.top : window.self;
     if (target) {
       //  console.log(window.parent.location.href)
       target.postMessage(
@@ -100,26 +101,31 @@ export default function Alarms() {
   const [alerts, setAlerts] = useState([]);
   const [seenAlerts, setSeenAlerts] = useState({});
 
-
-  function updateSeenAlerts(){
-debugger
-    seenAlerts.etag++
+  function updateSeenAlerts() {
+    debugger;
+    seenAlerts.etag++;
     OfficeGraph.updateExtention(seenAlerts)
       .then(() => {})
       .catch(error => {
         errors.push({ context: "OfficeGraph.updateExtention() ", error });
         setErrors(errors);
       });
-
   }
   useEffect(() => {
+    var ztickyBar = ZTICKYBAR.init();
+    var ztickyBarNotificationCount = localStorage.getItem(
+      "ztickyBarNotificationCount"
+    );
+    var count = ztickyBarNotificationCount
+      ? parseInt(ztickyBarNotificationCount)
+      : 0;
+    ztickyBar.setNotificationCount(3, count);
+    return;
     OfficeGraph.myExtentions()
       .then(m => {
         setMe(m);
-        console.log(m.value[0].etag)
-        setSeenAlerts(m.value[0])
-
-        
+        console.log(m.value[0].etag);
+        setSeenAlerts(m.value[0]);
 
         var ztickyBar = ZTICKYBAR.init();
         ztickyBar.setNotificationCount(3, 2);
@@ -147,10 +153,32 @@ debugger
       <hr />
       {JSON.stringify(errors)}
       <hr />
-        <button onClick={()=>{
-          updateSeenAlerts()
-        }}>updateSeenAlerts</button>
+      <button
+        onClick={() => {
+          //debugger
+          var c = localStorage.getItem("ztickyBarNotificationCount");
+          var count = c ? (parseInt(c) > 0 ? parseInt(c) + 1 : 1) : 0;
+          localStorage.setItem("ztickyBarNotificationCount", count);
+
+          var ztickyBar = ZTICKYBAR.init();
+          ztickyBar.setNotificationCount(3, count);
+        }}
+      >
+        +
+      </button>
+      <button
+        onClick={() => {
+          //debugger
+          var c = localStorage.getItem("ztickyBarNotificationCount");
+          var count = c ? (parseInt(c) > 0 ? parseInt(c) - 1 : 1) : 0;
+          localStorage.setItem("ztickyBarNotificationCount", count);
+
+          var ztickyBar = ZTICKYBAR.init();
+          ztickyBar.setNotificationCount(3, count);
+        }}
+      >
+        -
+      </button>
     </div>
-  
   );
 }
