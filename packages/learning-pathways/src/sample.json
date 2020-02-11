@@ -1,0 +1,446 @@
+{
+  "title": null,
+  "teaser": null,
+  "titlegraphics": null,
+  "backgroundColor": null,
+  "textColor": null,
+  "isProtected": false,
+  "version": 1,
+  "references": [],
+  "nextId": 187,
+  "grid": [
+    [
+      {
+        "id": 1
+      },
+      {
+        "id": 2
+      },
+      {
+        "id": 3
+      },
+      {
+        "id": 4
+      },
+      {
+        "id": 5
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 7
+      },
+      {
+        "id": 8
+      },
+      {
+        "id": 9
+      }
+    ],
+    [
+      {
+        "id": 10
+      },
+      {
+        "id": 11
+      },
+      {
+        "id": 12,
+        "type": "top",
+        "groupSetting": {
+          "title": "Idea",
+          "key": "unknown",
+          "color": "#79dae0",
+          "textColor": "#000000"
+        },
+        "members": [170, 161, 152]
+      },
+      {
+        "id": 13,
+        "type": "top",
+        "groupSetting": {
+          "title": "Inception",
+          "key": "unknown",
+          "color": "#79dae0",
+          "textColor": "#000000"
+        },
+        "members": [171, 162, 153, 143]
+      },
+      {
+        "id": 14,
+        "type": "top",
+        "groupSetting": {
+          "title": "Construct",
+          "key": "unknown",
+          "color": "#74addc",
+          "textColor": "#fffefe"
+        },
+        "members": [163]
+      },
+      {
+        "id": 15,
+        "type": "top",
+        "groupSetting": {
+          "title": "Release",
+          "key": "unknown",
+          "color": "#74addc",
+          "textColor": "#fdf5f5"
+        },
+        "members": [173, 164]
+      },
+      {
+        "id": 16,
+        "type": "top",
+        "groupSetting": {
+          "title": "Operate",
+          "key": "unknown",
+          "color": "#2f85f5",
+          "textColor": "#faf6f6"
+        }
+      },
+      {
+        "id": 17,
+        "type": "top",
+        "groupSetting": {
+          "title": "Divest",
+          "key": "unknown",
+          "color": "#d8d8d8",
+          "textColor": "#ffffff"
+        }
+      },
+      {
+        "id": 18
+      }
+    ],
+    [
+      {
+        "id": 168
+      },
+      {
+        "id": 169,
+        "type": "left",
+        "groupSetting": {
+          "title": "Governance & Approval",
+          "key": "unknown",
+          "color": "#ffffff",
+          "textColor": "#000000"
+        },
+        "members": [170, 171, 173]
+      },
+      {
+        "id": 170,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Compliance & Governance",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Ask our experts about:\n- regulatory compliance\n- governance processes",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 171,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Delivery Support",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Request delivery support\n\nArrange an impact assessment\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 172,
+        "type": "spacer"
+      },
+      {
+        "id": 173,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Impact Assessment",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Arrange impact assessment validation or release approval (where required)\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 174
+      },
+      {
+        "id": 175
+      },
+      {
+        "id": 176
+      }
+    ],
+    [
+      {
+        "id": 159
+      },
+      {
+        "id": 160,
+        "type": "left",
+        "groupSetting": {
+          "title": "Technology",
+          "key": "unknown",
+          "color": "#ffffff",
+          "textColor": "#000000"
+        },
+        "members": [161, 162, 163, 164]
+      },
+      {
+        "id": 161,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Technology & Architecture",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Ask our experts about:\n- how we can help you bring your idea to market\n- technology options\n- architecture implications\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 162,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Solution architecture & design",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Get support for:\n- requirements specification\n- solution architecture and design\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 163,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Application Development",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Get support for application development\n\nAccess reusable components for your solution\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 164,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Test & Transition Management",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Get support for testing and transition management\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 165
+      },
+      {
+        "id": 166
+      },
+      {
+        "id": 167
+      }
+    ],
+    [
+      {
+        "id": 150
+      },
+      {
+        "id": 151,
+        "type": "left",
+        "groupSetting": {
+          "title": "Service",
+          "key": "unknown",
+          "color": "#ffffff",
+          "textColor": "#000000"
+        },
+        "members": [152, 153]
+      },
+      {
+        "id": 152,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Security & Sourcing",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Ask our experts about:\n- information security\n- sourcing & vendor assurance\n- funding and budgeting\n- running a development project",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 153,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Security,Risk & Supplier Mgmt.",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Get support for:\n- service management\n- security risk management\n- supplier management\n- building a business case\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": null,
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 154
+      },
+      {
+        "id": 155
+      },
+      {
+        "id": 156
+      },
+      {
+        "id": 157
+      },
+      {
+        "id": 158
+      }
+    ],
+    [
+      {
+        "id": 140
+      },
+      {
+        "id": 141,
+        "type": "left",
+        "groupSetting": {
+          "title": "Delivery",
+          "key": "unknown",
+          "color": "#ffffff",
+          "textColor": "#000000"
+        },
+        "members": [143]
+      },
+      {
+        "id": 142,
+        "type": "spacer"
+      },
+      {
+        "id": 143,
+        "type": "full",
+        "tile": {
+          "key": null,
+          "textcolor": "#ffffff",
+          "title": "Tools, dev & test environments",
+          "color": "#377AB9",
+          "icon": null,
+          "inShort": "Get access to:\n- project tools and methods\n- prototyping, development and test environments\n",
+          "isFullyShareable": "",
+          "isPartlyShareable": "",
+          "isPremium": "",
+          "jumpto": "",
+          "subtitle": "",
+          "contentRef": ""
+        }
+      },
+      {
+        "id": 144
+      },
+      {
+        "id": 145
+      },
+      {
+        "id": 146
+      },
+      {
+        "id": 147
+      },
+      {
+        "id": 148
+      }
+    ],
+    [
+      {
+        "id": 178
+      },
+      {
+        "id": 179
+      },
+      {
+        "id": 180
+      },
+      {
+        "id": 181
+      },
+      {
+        "id": 182
+      },
+      {
+        "id": 183
+      },
+      {
+        "id": 184
+      },
+      {
+        "id": 185
+      },
+      {
+        "id": 186
+      }
+    ]
+  ]
+}
