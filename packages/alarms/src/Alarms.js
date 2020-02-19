@@ -120,7 +120,7 @@ export default function Alarms() {
       ? parseInt(ztickyBarNotificationCount)
       : 0;
     ztickyBar.setNotificationCount(3, count);
-    return;
+   // return;
     OfficeGraph.myExtentions()
       .then(m => {
         setMe(m);
