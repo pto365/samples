@@ -147,7 +147,7 @@ export default function LearningPath(props) {
     setIntroduced(1);
   };
   return (
-    <>
+    <>      {!inFrame && (
       <div
         style={{
           padding: 10,
@@ -190,7 +190,7 @@ export default function LearningPath(props) {
         </div>
         {/* {" "}
         Niels Gregers Johansen &nbsp;  */}
-      </div>
+      </div>)}
       {!inFrame && (
         <div
           style={{
