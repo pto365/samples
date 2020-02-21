@@ -9,6 +9,7 @@ import axios from "axios";
 
 //import Excel from "exceljs"
 import _ from "lodash";
+import config from "../config"
 var XLSX = require("xlsx");
 // Configuration options for MSAL @see https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/MSAL.js-1.0.0-api-release#configuration-options
 // const msalConfig = {
@@ -18,10 +19,7 @@ var XLSX = require("xlsx");
 //     },
 // };
 const intoStream = require("into-stream");
-const graphScopes = [
-  "User.Read.All",
-  "User.ReadWrite.All"
-]; // An array of graph scopes
+const graphScopes = config.scopes
 
 // // Important Note: This library implements loginPopup and acquireTokenPopup flow, remember this while initializing the msal
 // // Initialize the MSAL @see https://github.com/AzureAD/microsoft-authentication-library-for-js#1-instantiate-the-useragentapplication
@@ -38,7 +36,7 @@ var replyUrl =
   window.location.pathname;
 var msalConfig = {
   auth: {
-    clientId: "443ae28d-8cf8-42fd-ba63-f403ac085ead",
+    clientId:config.clientId, // && "443ae28d-8cf8-42fd-ba63-f403ac085ead",
     redirectUri: replyUrl,
     authority: "https://login.microsoftonline.com/common",
     storeAuthStateInCookie:true
@@ -113,8 +111,8 @@ function me() {
   return get("/me");
 }
 
-function myExtentions() {
-  return get("/me/extensions");
+function myExtentions(id) {
+  return get(`/me/extensions/${id}`);
 }
 
 function updateExtention(data) {
@@ -126,12 +124,12 @@ function setExtention(data) {
 }
 
 
-function alerts() {
-  return get("/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/Service%20Announcements/items");
+function getAlerts() {
+  return get("/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/currentAlerts/items?expand=fields");
 }
 
 export default {
-  me,myExtentions,alerts,setExtention,updateExtention
+  me,myExtentions,getAlerts,setExtention,updateExtention
   
 };
 

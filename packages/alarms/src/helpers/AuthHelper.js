@@ -1,5 +1,5 @@
 import { UserAgentApplication } from "msal";
-
+import config from "../config"
 export class ImplicitMSALAuthenticationProvider {
   constructor(msalApplication, options) {
     this.options = options;
@@ -21,18 +21,13 @@ export class ImplicitMSALAuthenticationProvider {
       console.log("login replyUrl", replyUrl);
       var msalConfig = {
         auth: {
-          clientId: "443ae28d-8cf8-42fd-ba63-f403ac085ead",
+          clientId: config.clientId, //"443ae28d-8cf8-42fd-ba63-f403ac085ead",
           redirectUri: replyUrl,
           authority: "https://login.microsoftonline.com/common"
         }
       };
       var requestObj = {
-        scopes: [
-          "User.Read.All",
-          "User.ReadWrite.All",
-          "mail.send",
-          "Files.ReadWrite.All"
-        ]
+        scopes: config.scopes
       };
       var msalInstance = new UserAgentApplication(msalConfig);
       msalInstance.handleRedirectCallback((error, response) => {

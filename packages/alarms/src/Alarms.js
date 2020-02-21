@@ -18,7 +18,19 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import OfficeGraph from "./helpers/OfficeGraph";
-
+import config from "./config";
+import { initializeIcons } from "@uifabric/icons";
+import {
+  MessageBarButton,
+  Link,
+  Stack,
+  StackItem,
+  MessageBar,
+  MessageBarType,
+  ChoiceGroup,
+  IStackProps
+} from "office-ui-fabric-react";
+initializeIcons();
 export function getSearchParametersFromHRef(href) {
   if (!href) return {};
   var search = {};
@@ -93,19 +105,38 @@ class ZTICKYBAR {
     return this._tileId;
   }
 }
-
+var defaultExtension = {
+  extensionName: "intranets_seenAlerts",
+  seenAlerts: [
+    {
+      url: "https://christianiabpos.sharepoint.com/sites/intranets-corp",
+      date: "24/01/2022"
+    }
+  ],
+  etag: 152,
+  id: "intranets_seenAlerts"
+};
 export default function Alarms() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [errors, setErrors] = useState([]);
   const [me, setMe] = useState({});
   const [alerts, setAlerts] = useState([]);
   const [seenAlerts, setSeenAlerts] = useState({});
+const down = () => {
+  //debugger
+  var c = localStorage.getItem("ztickyBarNotificationCount");
+  var count = c ? (parseInt(c) > 0 ? parseInt(c) - 1 : 1) : 0;
+  localStorage.setItem("ztickyBarNotificationCount", count);
 
-  function updateSeenAlerts() {
-    debugger;
-    seenAlerts.etag++;
-    OfficeGraph.updateExtention(seenAlerts)
-      .then(() => {})
+  var ztickyBar = ZTICKYBAR.init();
+  ztickyBar.setNotificationCount(3, count);
+}
+  function updateSeenAlerts(_seenAlerts) {
+    _seenAlerts.etag++;
+    OfficeGraph.updateExtention(_seenAlerts)
+      .then(() => {
+        setSeenAlerts(_seenAlerts);
+      })
       .catch(error => {
         errors.push({ context: "OfficeGraph.updateExtention() ", error });
         setErrors(errors);
@@ -120,38 +151,99 @@ export default function Alarms() {
       ? parseInt(ztickyBarNotificationCount)
       : 0;
     ztickyBar.setNotificationCount(3, count);
-   // return;
-    OfficeGraph.myExtentions()
-      .then(m => {
-        setMe(m);
-        console.log(m.value[0].etag);
-        setSeenAlerts(m.value[0]);
-
-        var ztickyBar = ZTICKYBAR.init();
-        ztickyBar.setNotificationCount(3, 2);
+    // return;
+    OfficeGraph.myExtentions("intranets_seenAlerts")
+      .then(_seenAlerts => {
+        try {
+          setMe(_seenAlerts);
+          //console.log(m.value[0].etag);
+          setSeenAlerts(_seenAlerts);
+          updateSeenAlerts(_seenAlerts);
+          var ztickyBar = ZTICKYBAR.init();
+          ztickyBar.setNotificationCount(3, 2);
+        } catch (error) {
+          errors.push({
+            context: "Post init",
+            error
+          });
+          setErrors(errors);
+        }
       })
       .catch(error => {
-        errors.push({ context: "OfficeGraph.myExtentions() ", error });
+        errors.push({
+          context: "OfficeGraph.myExtentions('intranets_seenAlerts') ",
+          error
+        });
         setErrors(errors);
       });
 
-    OfficeGraph.alerts()
+    OfficeGraph.getAlerts()
       .then(data => {
-        //setAlerts()
+        if (!data.value) return;
+        var _alerts = data.value.map(alert => {
+          
+
+          try {
+            var x = {
+              id: alert.fields.id,
+              title: alert.fields.Title,
+              active: alert.fields.Active,
+              date: alert.fields.Date,
+              message:alert.fields.Message,
+              image : alert.fields.RollupImage ?alert.fields.RollupImage.Url : null
+            }
+            return x
+          } catch (error) {
+            //debugger
+          }
+         
+        });
+      
+        setAlerts(_alerts);
       })
       .catch(error => {
-        errors.push({ context: "OfficeGraph.alerts() ", error });
+        errors.push({ context: "OfficeGraph.getAlerts() ", error });
         setErrors(errors);
       });
   }, []);
 
   return (
     <div>
-      Alarms
+      {config.title}
+      {errors.length > 0 && (
+        <MessageBar
+          messageBarType={MessageBarType.error}
+          isMultiline={false}
+          onDismiss={() => {
+            setErrors(errors.slice(1));
+          }}
+          dismissButtonAriaLabel="Close"
+        >
+          Error: {JSON.stringify(errors[0])}
+        </MessageBar>
+      )}
+      {/* <hr />
+      {JSON.stringify(seenAlerts)}
       <hr />
-      {JSON.stringify(me)}
-      <hr />
-      {JSON.stringify(errors)}
+      {JSON.stringify(alerts)} */}
+
+
+      {alerts.map((alert,key)=>{
+        return (
+          <div>
+<div style={{display:"flex"}}>
+  <div onClick={down}><img style={{width:"120px",padding:"10px"}} src={alert.image ? alert.image : "https://www.huntersglenvet.com/wp-content/uploads/2018/03/xpop-up-alert.png.pagespeed.ic_.vwzzZnK_Rf-288x300.png"}></img></div>
+       <div>
+        <div style={{fontSize:"24px",padding:"10px"}}>{alert.title}</div>
+        <div style={{fontSize:"12px",padding:"10px"}}>
+        {alert.message}
+        </div>
+        </div>
+  <div></div>
+</div>
+</div>
+        )
+      })}
       <hr />
       <button
         onClick={() => {
@@ -167,15 +259,7 @@ export default function Alarms() {
         +
       </button>
       <button
-        onClick={() => {
-          //debugger
-          var c = localStorage.getItem("ztickyBarNotificationCount");
-          var count = c ? (parseInt(c) > 0 ? parseInt(c) - 1 : 1) : 0;
-          localStorage.setItem("ztickyBarNotificationCount", count);
-
-          var ztickyBar = ZTICKYBAR.init();
-          ztickyBar.setNotificationCount(3, count);
-        }}
+        onClick={down}
       >
         -
       </button>
