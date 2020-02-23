@@ -30,8 +30,9 @@ import _ from "lodash";
 import "./App.css";
 import { Highlight } from "./components/Highlight";
 import { set } from "animejs";
-import logo from "./media/Logo horizontal color - transparent background.png";
+
 import { Router, Match, Location, navigate, Link } from "@reach/router";
+import config from "./config";
 function inIframe() {
   try {
     return window.self !== window.top;
@@ -49,14 +50,14 @@ export default function LearningPath(props) {
   const [metadata, setMetadata] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [filter, setFilter] = useState("");
-  const [tileSize, setTileSize] = useState(1);
+  
   const [technologyOptions, setTechnologyOptions] = useState([]);
   const [selectedTechnology, setSelectedTechnology] = useState("");
   const [showTable, setShowTable] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState("");
-  const [groups, setGroups] = useState([]);
+
   const [countVideos, setCountVideos] = useState(0);
   const [showNavigation, setShowNavigation] = useState(true);
+  const [maxNavigation, setMaxNavigation] = useState(false);
   const inFrame = inIframe();
   const [introduced, setIntroduced] = useState(
     localStorage.getItem("introduced")
@@ -147,50 +148,57 @@ export default function LearningPath(props) {
     setIntroduced(1);
   };
   return (
-    <>      {!inFrame && (
-      <div
-        style={{
-          padding: 10,
-          xposition: "fixed",
-          width: "100%",
-          xbottom: 0,
-          backgroundColor: "#ffffff",
-          height: "24px",
-          xborderTop: "1px solid #eeeeee"
-        }}
-      >
-        <div style={{ display: "flex", borderBottom: "1px solid #eeeeee" }}>
-          <div style={{ padding: 4, marginLeft: 16, marginRight: 16 }}>
-            <a target="_blank" href="/">
-              <img src={logo} style={{ height: "20px" }} />
-            </a>
+    <>
+      {" "}
+      {!inFrame && (
+        <div
+          style={{
+            padding: 10,
+            xposition: "fixed",
+            width: "100%",
+            xbottom: 0,
+            backgroundColor: "#ffffff",
+            height: "24px",
+            xborderTop: "1px solid #eeeeee"
+          }}
+        >
+          <div style={{ display: "flex", borderBottom: "1px solid #eeeeee" }}>
+            <div style={{ padding: 4, marginLeft: 16, marginRight: 16 }}>
+              <a target="_blank" href="/">
+                <img src={config.logo} style={{ height: "20px" }} />
+              </a>
+            </div>
+            <div
+              style={{
+                flexGrow: 1,
+                fontSize: "20px",
+                lineHeight: "20px",
+                padding: 2,
+                color: "#26569F",
+
+                ...(config.style && config.style.header
+                  ? config.style.header
+                  : {})
+              }}
+            >
+              {" "}
+              {config.title}{" "}
+            </div>
+            <div
+              style={{
+                fontSize: "12px",
+                lineHeight: "20px",
+                padding: 2,
+                color: "#26569F"
+              }}
+            >
+              <Link to="/about">About</Link>{" "}
+            </div>
           </div>
-          <div
-            style={{
-              flexGrow: 1,
-              fontSize: "20px",
-              lineHeight: "20px",
-              padding: 2,
-              color: "#26569F"
-            }}
-          >
-            {" "}
-            Microsoft 365 Learning Videos{" "}
-          </div>
-          <div
-            style={{
-              fontSize: "12px",
-              lineHeight: "20px",
-              padding: 2,
-              color: "#26569F"
-            }}
-          >
-            <Link to="/about">About</Link>{" "}
-          </div>
-        </div>
-        {/* {" "}
+          {/* {" "}
         Niels Gregers Johansen &nbsp;  */}
-      </div>)}
+        </div>
+      )}
       {!inFrame && (
         <div
           style={{
@@ -246,6 +254,7 @@ export default function LearningPath(props) {
                 setFilter("");
                 setSelectedTechnology("");
                 setSelectedAsset(null);
+                setMaxNavigation(false);
                 navigate("/");
               }}
             />
@@ -263,149 +272,183 @@ export default function LearningPath(props) {
                 borderRight: "1px solid #eeeeee"
               }}
             >
-              <i
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setShowNavigation(!showNavigation);
-                }}
-                class={`ms-Icon ms-Icon--${
-                  showNavigation ? "ChevronLeftSmall" : "ChevronRightSmall"
-                }`}
-                aria-hidden="true"
-              ></i>
+              <div style={{ display: "flex" }}>
+                {!maxNavigation && (
+                  <div>
+                    {" "}
+                    <i
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setShowNavigation(!showNavigation);
+                      }}
+                      class={`ms-Icon ms-Icon--${
+                        showNavigation
+                          ? "ChevronLeftSmall"
+                          : "ChevronRightSmall"
+                      }`}
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+                )}
+                {showNavigation && (
+                  <div>
+                    <i
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setMaxNavigation(!maxNavigation);
+                      }}
+                      class={`ms-Icon ms-Icon--${
+                        maxNavigation ? "ChevronLeftSmall" : "ChevronRightSmall"
+                      }`}
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
-        <div
-          style={{
-            flexGrow: 1,
-            margin: "20px",
-            minWidth: "50vw",
-            position: "sticky",
-            top: "0px"
-          }}
-        >
-          <Match path="/about">
-            {props => {
-              if (!props.match) return null;
+        {!maxNavigation && (
+          <div
+            style={{
+              flexGrow: 1,
+              margin: "20px",
+              minWidth: "50vw",
+              position: "sticky",
+              top: "0px"
+            }}
+          >
+            <Match path="/">
+              {props => {
+                if (!props.match) return null;
+                return config.welcome
+              }}
+              </Match>
+            <Match path="/about">
+              {props => {
+                if (!props.match) return null;
 
-              return (
-                <>
-                  <h1>Microsoft 365 Learning Videos </h1>
+                return (
+                  <>
+                    <h1>Microsoft 365 Learning Videos </h1>
 
-                  <div>
-                    Greeting fellow Microsoft 365'ians
-                    <p>
-                      Here you find a catalogue of {countVideos} videos produced
-                      by Microsoft proudly server by this APP crafted by{" "}
-                      <a
-                        href="https://www.jumpto365.com/about#niels"
-                        target="_blank"
-                      >
-                        Niels Gregers Johansen{" "}
-                      </a>
-                      &nbsp;. Based on work of{" "}
-        <a
-          target="_blank"
-          href="https://github.com/pnp/custom-learning-office-365/blob/master/LICENSE"
-        >
-          Patterns and Practices around Microsoft 365 topics
-        </a>
-                    </p>
-                    <h3>Disclaimer</h3>
                     <div>
-                      THIS SOLUTION IS PROVIDED AS IS WITHOUT WARRANTY OF ANY
-                      KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED
-                      WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE,
-                      MERCHANTABILITY, OR NON-INFRINGEMENT.
-                    </div>
-                    <h3>Copyright notices</h3>
-                    <code>
-                      MIT License
-                      <br />
-                      <br />
-                      Copyright (c) 2019 PnP
-                      <br />
-                      <br />
-                      Permission is hereby granted, free of charge, to any
-                      person obtaining a copy of this software and associated
-                      documentation files (the "Software"), to deal in the
-                      Software without restriction, including without limitation
-                      the rights to use, copy, modify, merge, publish,
-                      distribute, sublicense, and/or sell copies of the
-                      Software, and to permit persons to whom the Software is
-                      furnished to do so, subject to the following conditions:
-                      <br />
-                      <br />
-                      The above copyright notice and this permission notice
-                      shall be included in all copies or substantial portions of
-                      the Software.
-                      <br />
-                      <br />
-                      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-                      KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-                      WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-                      PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
-                      OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-                      OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-                      OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-                      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-                      <br />
-                      <br />
-                    </code>
-                  </div>
-                </>
-              );
-            }}
-          </Match>
-
-          <Match path="asset/:assetId">
-            {props => {
-              if (!props || !props.match) {
-                return null;
-              }
-              var asset = assetIndex[props.match.assetId];
-              return (
-                <div style={{ maxHeight: "100vh", overflow: "auto" }}>
-                  {asset && (
-                    <div style={{ position: "relative" }}>
-                      <div>
-                        {" "}
-                        <iframe
-                          src={asset.Url}
-                          style={{
-                            border: "0px",
-                            height: "90vh",
-                            width: "100%"
-                          }}
-                        />
-                      </div>
-                      {inFrame && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            zIndex: 1
-                          }}
+                      Greeting fellow Microsoft 365'ians
+                      <p>
+                        Here you find a catalogue of {countVideos} videos
+                        produced by Microsoft proudly server by this APP crafted
+                        by{" "}
+                        <a
+                          href="https://www.jumpto365.com/about#niels"
+                          target="_blank"
                         >
-                          <a href={window.location.href} target="_blank">
-                            <i
-                              class={`ms-Icon ms-Icon--OpenInNewWindow`}
-                              aria-hidden="true"
-                            ></i>
-                          </a>
-                        </div>
-                      )}
+                          Niels Gregers Johansen{" "}
+                        </a>
+                        &nbsp;. Based on work of{" "}
+                        <a
+                          target="_blank"
+                          href="https://github.com/pnp/custom-learning-office-365/blob/master/LICENSE"
+                        >
+                          Patterns and Practices around Microsoft 365 topics
+                        </a>
+                      </p>
+                      <h3>Disclaimer</h3>
+                      <div>
+                        THIS SOLUTION IS PROVIDED AS IS WITHOUT WARRANTY OF ANY
+                        KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED
+                        WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE,
+                        MERCHANTABILITY, OR NON-INFRINGEMENT.
+                      </div>
+                      <h3>Copyright notices</h3>
+                      <code>
+                        MIT License
+                        <br />
+                        <br />
+                        Copyright (c) 2019 PnP
+                        <br />
+                        <br />
+                        Permission is hereby granted, free of charge, to any
+                        person obtaining a copy of this software and associated
+                        documentation files (the "Software"), to deal in the
+                        Software without restriction, including without
+                        limitation the rights to use, copy, modify, merge,
+                        publish, distribute, sublicense, and/or sell copies of
+                        the Software, and to permit persons to whom the Software
+                        is furnished to do so, subject to the following
+                        conditions:
+                        <br />
+                        <br />
+                        The above copyright notice and this permission notice
+                        shall be included in all copies or substantial portions
+                        of the Software.
+                        <br />
+                        <br />
+                        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+                        ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+                        TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+                        PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+                        SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+                        CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+                        OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+                        IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+                        DEALINGS IN THE SOFTWARE.
+                        <br />
+                        <br />
+                      </code>
                     </div>
-                  )}
+                  </>
+                );
+              }}
+            </Match>
 
-                  {!asset && <div>Not found</div>}
-                </div>
-              );
-            }}
-          </Match>
-        </div>
+            <Match path="asset/:assetId">
+              {props => {
+                if (!props || !props.match) {
+                  return null;
+                }
+                var asset = assetIndex[props.match.assetId];
+                return (
+                  <div style={{ maxHeight: "100vh", overflow: "auto" }}>
+                    {asset && (
+                      <div style={{ position: "relative" }}>
+                        <div>
+                          {" "}
+                          <iframe
+                            src={asset.Url}
+                            style={{
+                              border: "0px",
+                              height: "90vh",
+                              width: "100%"
+                            }}
+                          />
+                        </div>
+                        {inFrame && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              right: 0,
+                              zIndex: 1
+                            }}
+                          >
+                            <a href={window.location.href} target="_blank">
+                              <i
+                                class={`ms-Icon ms-Icon--OpenInNewWindow`}
+                                aria-hidden="true"
+                              ></i>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {!asset && <div>Not found</div>}
+                  </div>
+                );
+              }}
+            </Match>
+          </div>
+        )}
       </div>
     </>
   );
@@ -471,7 +514,7 @@ export default function LearningPath(props) {
                                   className="asset"
                                   onClick={() => {
                                     setSelectedAsset(asset);
-
+                                    setMaxNavigation(false);
                                     navigate("/asset/" + asset.Id);
                                   }}
                                 >

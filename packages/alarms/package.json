@@ -37,10 +37,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "config-default":"cp src/config/default.js src/config/index.js",
-    "config-nets":"cp src/config/nets.js src/config/index.js",
-    "deploy": "cp src/config/default.js src/config/index.js && react-scripts build && gh-pages -b master -d build -r https://github.com/ztickybar/alarms",
-    "deploy-nets": "cp src/config/nets.js src/config/index.js && react-scripts build && echo notify.nets-intranets.com > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/nets-intranets/notify"
+    "config-default":"cp src/config/default/index.html public/index.html && cp src/config/default.js src/config/index.js",
+    "config-nets":"cp src/config/nets/index.html public/index.html && cp src/config/nets.js src/config/index.js",
+    "deploy": "cp src/config/default/index.html public/index.html && cp src/config/default.js src/config/index.js && react-scripts build && gh-pages -b master -d build -r https://github.com/ztickybar/alarms",
+    "deploy-nets": "cp src/config/nets/index.html public/index.html && cp src/config/nets.js src/config/index.js && react-scripts build && echo alerts.nets-intranets.com > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/nets-intranets/notify"
 
   },
   "eslintConfig": {
