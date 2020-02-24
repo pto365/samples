@@ -1,5 +1,5 @@
 import { UserAgentApplication } from "msal";
-
+import config from "../config"
 function getAccessToken (scopes) {
   var replyUrl =
     window.location.protocol +
@@ -14,7 +14,7 @@ function getAccessToken (scopes) {
   console.log("login replyUrl", replyUrl);
   var msalConfig = {
     auth: {
-      clientId: "443ae28d-8cf8-42fd-ba63-f403ac085ead",
+      clientId: config.clientId,
       redirectUri: replyUrl,
       authority: "https://login.microsoftonline.com/common"
     }

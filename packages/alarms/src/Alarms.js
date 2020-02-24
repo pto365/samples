@@ -12,29 +12,27 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- * 
- * Written by Niels Gregers Johansen <niels@jumpto365.com>, December 2019 - Februar 2020
- */
+ 
+------------------------------------------------------------------------------------------------------------------------------
+ 
+ Written by Niels Gregers Johansen <niels@jumpto365.com>, December 2019 - Februar 2020
+
+ *******************************************************************************************************************************/
 import React, { useState, useEffect } from "react";
 import _ from "lodash";
-import OfficeGraphOld from "./helpers/OfficeGraph";
+
 import config from "./config";
 import { initializeIcons } from "@uifabric/icons";
 import { UserAgentApplication } from "msal";
 import AuthHelper from "./officegraph/authHelper";
 import OfficeGraph from "./officegraph";
 import {
-  MessageBarButton,
-  Link,
-  Stack,
-  StackItem,
   MessageBar,
   MessageBarType,
-  ChoiceGroup,
-  IStackProps,
   PrimaryButton
 } from "office-ui-fabric-react";
-
+import "./App.css";
+import packageData from "../package.json";
 initializeIcons();
 
 function inIframe() {
@@ -45,6 +43,9 @@ function inIframe() {
   }
 }
 
+/**
+ * Proxied class
+ */
 class ZTICKYBAR {
   static init = () => {
     return new ZTICKYBAR();
@@ -95,6 +96,7 @@ var defaultExtension = {
   id: "intranets_seenAlerts"
 };
 export default function Alarms() {
+  const SCOPES = ["User.Read.All", "Sites.Read.All"];
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState({});
   const [errors, setErrors] = useState([]);
@@ -103,6 +105,7 @@ export default function Alarms() {
   const [seenAlerts, setSeenAlerts] = useState({});
   const inFrame = inIframe();
   const [accessToken, setAccessToken] = useState("");
+  const [refresh, setRefresh] = useState(0);
 
   /******************************************************************************************************************************
    *
@@ -138,17 +141,28 @@ export default function Alarms() {
    * Save a list of seen alerts
    *
    ******************************************************************************************************************************/
+  // function myExtentions(id) {
+  //   return get(`/me/extensions/${id}`);
+  // }
+
+  // function updateExtention(data) {
+  //   return patch(`/me/extensions/${data.id}`,data);
+  // }
+
+  // function setExtention(data) {
+  //   return post(`/me/extensions/${data.id}`,data);
+  // }
 
   function updateSeenAlerts(_seenAlerts) {
-    _seenAlerts.etag++;
-    OfficeGraphOld.updateExtention(_seenAlerts)
-      .then(() => {
-        setSeenAlerts(_seenAlerts);
-      })
-      .catch(error => {
-        errors.push({ context: "OfficeGraph.updateExtention() ", error });
-        setErrors(errors);
-      });
+    // _seenAlerts.etag++;
+    // OfficeGraphOld.updateExtention(_seenAlerts)
+    //   .then(() => {
+    //     setSeenAlerts(_seenAlerts);
+    //   })
+    //   .catch(error => {
+    //     errors.push({ context: "OfficeGraph.updateExtention() ", error });
+    //     setErrors(errors);
+    //   });
   }
   /******************************************************************************************************************************
    *
@@ -162,18 +176,26 @@ export default function Alarms() {
         setIsSignedIn(true);
 
         try {
-          var token = await AuthHelper.getAccessToken(["User.Read.All"]);
-          debugger
+          var token = await AuthHelper.getAccessToken(SCOPES);
+
           setAccessToken(token);
           var me = await OfficeGraph.get(
             token,
             "https://graph.microsoft.com/v1.0/me"
           );
-          
-          debugger
-          setMe(me)
+
+          setMe(me);
         } catch (error) {
-          debugger
+          switch (error.errorCode) {
+            case "user_login_error":
+              debugger;
+              break;
+
+            default:
+              debugger;
+              break;
+          }
+
           errors.push({
             context: " OfficeGraph.auth.getAccessToken()",
             error
@@ -211,15 +233,17 @@ export default function Alarms() {
     // ztickyBar.setNotificationCount(3, count);
     // return;
     load();
-    if (isSignedIn) {
+    if (accessToken) {
       getSeenAlerts();
-      getAlerts();
+      //getAlerts();
     }
-  }, [isSignedIn]);
+  }, [accessToken, refresh]);
   /******************************************************************************************************************************
+   * ******************************************************************************************************************************
    *
-   * Main display
+   *     MAIN display
    *
+   *******************************************************************************************************************************
    ******************************************************************************************************************************/
 
   return (
@@ -250,42 +274,71 @@ export default function Alarms() {
           Error: {JSON.stringify(errors[0])}
         </MessageBar>
       )}
-
-      <div
-        style={{ marginLeft: "auto", marginRight: "auto", maxWidth: "1280px" }}
-      >
-        {/**********************************************************************************************************************
-         *
-         * If not signed in, show a Sign In button
-         *
-         *********************************************************************************************************************/}
-        {!isSignedIn && (
-          <div style={{ textAlign: "center", marginTop: "30vh" }}>
-            <PrimaryButton
-              text="Sign in"
-              onClick={() => {
-                alert("Not implemented");
-              }}
-            ></PrimaryButton>
-          </div>
-        )}
-        {/**********************************************************************************************************************
-         *
-         * And finally show the alerts
-         *
-         *********************************************************************************************************************/}
-        {showAlerts()}
+      <div style={{ backgroundColor: "#eeeeee" }}>
+        <div
+          style={{
+            padding: "20px",
+            marginLeft: "auto",
+            marginRight: "auto",
+            maxWidth: "1280px",
+            backgroundColor: "#ffffff",
+            height: "80vh"
+          }}
+        >
+          {/**********************************************************************************************************************
+           *
+           * If not signed in, show a Sign In button
+           *
+           *********************************************************************************************************************/}
+          {!isSignedIn && (
+            <div style={{ textAlign: "center", marginTop: "30vh" }}>
+              <PrimaryButton
+                text="Sign in"
+                onClick={() => {
+                  alert("Not implemented");
+                }}
+              ></PrimaryButton>
+            </div>
+          )}
+          {/**********************************************************************************************************************
+           *
+           * And finally show the alerts
+           *
+           *********************************************************************************************************************/}
+          {showAlerts()}
+        </div>
       </div>
       {/**********************************************************************************************************************
        *
-       * Debugging stuff
+       * Debugging stuff, only visible when not in an iframe
        *
        *********************************************************************************************************************/}
-      <div style={{ position: "absolute", bottom: 0 }}>
-        <button onClick={up}>+</button>
-        <button onClick={down}>-</button>
-        {JSON.stringify(me)}
-      </div>
+      {!inFrame && (
+        <div style={{ position: "absolute", bottom: 0 }}>
+          <div style={{ display: "flex", width: "100vw" }}>
+            <div style={{ flexGrow: 1, padding: 8 }}>
+              {me && (
+                <div>
+                  {me.displayName} ({me.userPrincipalName})
+                </div>
+              )}
+              {config.alertsUrl && (
+                <a href={config.alertsUrl} target="_blank">
+                  {config.alertsUrl}
+                </a>
+              )}
+              <div>
+              <button onClick={up}>+</button>
+              <button onClick={down}>-</button>
+              </div>
+            </div>
+            <div style={{ padding: 8, textAlign: "right" }}>
+              <div>ZTICKYBAR Notifier</div>
+              <div>Version {packageData.version}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
   /******************************************************************************************************************************
@@ -313,8 +366,25 @@ export default function Alarms() {
             redirectUri: replyUrl
           }
         };
+         /**
+    export declare type AuthenticationParameters = {
+    scopes?: Array<string>;
+    extraScopesToConsent?: Array<string>;
+    prompt?: string;
+    extraQueryParameters?: StringDict;
+    claimsRequest?: string;
+    authority?: string;
+    state?: string;
+    correlationId?: string;
+    account?: Account;
+    sid?: string;
+    loginHint?: string;
+    forceRefresh?: boolean;
+    redirectUri?: string;
+};
+           */
         var requestObj = {
-          scopes: ["user.read"]
+          scopes: SCOPES
         };
         var msalInstance = new UserAgentApplication(msalConfig);
         msalInstance.handleRedirectCallback((error, response) => {
@@ -323,7 +393,10 @@ export default function Alarms() {
         var PTO365 = {
           user: msalInstance.getAccount()
         };
+
+
         if (!PTO365.user) {
+         
           msalInstance.loginRedirect(requestObj);
         }
 
@@ -341,14 +414,18 @@ export default function Alarms() {
   function showAlerts() {
     return alerts.map((alert, key) => {
       return (
-        <div>
+        <div className="alert">
           <div
             style={{
               display: "flex",
               cursor: alert.url ? "pointer" : "default"
             }}
             onClick={() => {
-              down();
+              if (!alert.read) {
+                saveSeenAlerts()
+                //setRefresh(refresh+1)
+              }
+              //down();
               if (alert.url) window.open(alert.url, "_blank");
             }}
           >
@@ -363,7 +440,7 @@ export default function Alarms() {
               ></img>
             </div>
             <div style={{ position: "relative", flexGrow: 1 }}>
-              <div style={{ fontSize: "24px", padding: "10px" }}>
+              <div style={{ fontSize: "24px", padding: "10px",fontWeight:alert.read ? 300 :900  }}>
                 {alert.title}
               </div>
               <div style={{ fontSize: "12px", padding: "10px" }}>
@@ -392,11 +469,15 @@ export default function Alarms() {
    *
    ******************************************************************************************************************************/
   function getAlerts(_seenAlerts) {
-    OfficeGraphOld.getAlerts()
+    OfficeGraph.get(
+      accessToken,
+      "https://graph.microsoft.com/v1.0/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/currentAlerts/items?expand=fields"
+    )
+      //  OfficeGraphOld.getAlerts()
       .then(data => {
         var alertIds = {};
-        if (!data.value) return;
-        var _alerts = data.value.map(alert => {
+        if (!data) return;
+        var _alerts = data.map(alert => {
           try {
             var x = {
               id: alert.fields.id,
@@ -412,13 +493,16 @@ export default function Alarms() {
             alertIds[alert.fields.id] = x;
             return x;
           } catch (error) {
-            //debugger
+            errors.push({ context: "OfficeGraph.getAlerts() map ", error });
+            setErrors(errors);
           }
         });
+        //debugger
         var newSeenAlerts = [];
         if (_seenAlerts) {
           _seenAlerts.forEach(seen => {
             if (alertIds[seen.id]) {
+              alertIds[seen.id].read = true
               newSeenAlerts.push({
                 id: seen.id,
                 url: alertIds[seen.id].url
@@ -429,8 +513,10 @@ export default function Alarms() {
         var ztickyBar = ZTICKYBAR.init();
         ztickyBar.setNotificationCount(3, _alerts.length);
         setAlerts(_alerts);
+       // setRefresh(refresh + 1);
       })
       .catch(error => {
+        debugger;
         errors.push({ context: "OfficeGraph.getAlerts() ", error });
         setErrors(errors);
       });
@@ -441,15 +527,18 @@ export default function Alarms() {
    *
    ******************************************************************************************************************************/
   function getSeenAlerts() {
-    OfficeGraphOld.myExtentions("intranets_seenAlerts")
-      .then(_seenAlerts => {
+    // OfficeGraphOld.myExtentions("intranets_seenAlerts")
+    OfficeGraph.get(
+      accessToken,
+      `https://graph.microsoft.com/v1.0/me/extensions/intranets_seenAlerts`
+    )
+      .then(extensionData => {
         try {
-          
           //console.log(m.value[0].etag);
-          setSeenAlerts(_seenAlerts);
-          updateSeenAlerts(_seenAlerts);
+          // setSeenAlerts(_seenAlerts);
+          // updateSeenAlerts(_seenAlerts);
 
-          getAlerts(seenAlerts);
+          getAlerts(extensionData.seenAlerts);
         } catch (error) {
           errors.push({
             context: "Post init",
@@ -462,6 +551,81 @@ export default function Alarms() {
       .catch(error => {
         errors.push({
           context: "OfficeGraph.myExtentions('intranets_seenAlerts') ",
+          error
+        });
+        setErrors(errors);
+      });
+  }
+  /******************************************************************************************************************************
+   *
+   * Save seenalerts
+   *
+   ******************************************************************************************************************************/
+  async function saveSeenAlerts() {
+    // OfficeGraphOld.myExtentions("intranets_seenAlerts")
+    
+    var extension = await OfficeGraph.get(accessToken,`https://graph.microsoft.com/v1.0/me/extensions/intranets_seenAlerts`)
+    
+    var method  = extension ?  OfficeGraph.patch(
+      accessToken,
+      `https://graph.microsoft.com/v1.0/me/extensions/intranets_seenAlerts`,
+      {
+        "@odata.type": "#microsoft.graph.openTypeExtension",
+        "extensionName": "intranets_seenAlerts",
+        "seenAlerts": [
+          {
+            "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp",
+            "date": "24/01/2022"
+          },
+          {
+            "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp/Lists/currentAlerts/AllItems.aspx",
+            "date": "23"
+          }
+        ],
+        "etag": 402,
+        "id": "intranets_seenAlerts"
+      }
+      
+    ) : OfficeGraph.post(
+      accessToken,
+      `https://graph.microsoft.com/v1.0/me/extensions`,
+      {
+        "@odata.type": "#microsoft.graph.openTypeExtension",
+        "extensionName": "intranets_seenAlerts",
+        "seenAlerts": [
+          {
+            "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp",
+            "date": "24/01/2022"
+          },
+          {
+            "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp/Lists/currentAlerts/AllItems.aspx",
+            "date": "23"
+          }
+        ],
+        "etag": 402,
+        "id": "intranets_seenAlerts"
+      }
+      
+    )
+    
+    
+    method
+      .then(extensionData => {
+        try {
+          
+          
+        } catch (error) {
+          errors.push({
+            context: "Post init",
+            error
+          });
+          setErrors(errors);
+          getAlerts(null);
+        }
+      })
+      .catch(error => {
+        errors.push({
+          context: "setSeenAlerts ",
           error
         });
         setErrors(errors);

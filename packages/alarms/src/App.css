@@ -28,3 +28,11 @@
 
   
 }
+
+.alert {
+  border-left:3px solid white
+}
+.alert:hover {
+  cursor:pointer;
+  border-left:3px solid blue
+}

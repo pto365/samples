@@ -6,6 +6,7 @@ export default {
   title: "Alerts",
   logo,
   currentAlerts:"https://graph.microsoft.com/v1.0/sites/christianiabpos.sharepoint.com:/sites/intranets-corp:/lists/currentAlerts/items?expand=fields",
+  alertsUrl:"https://christianiabpos.sharepoint.com/sites/intranets-corp/lists/currentAlerts",
   components: {
     header:  (<div style={{borderBottom:"1px solid #cccccc"}}>
 <div style={{display:"flex",margin:"20px"}}>
