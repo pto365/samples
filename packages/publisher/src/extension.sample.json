@@ -1,0 +1,16 @@
+{
+  "@odata.type": "#microsoft.graph.openTypeExtension",
+  "extensionName": "intranets_seenAlerts",
+  "seenAlerts": [
+    {
+      "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp",
+      "date": "24/01/2022"
+    },
+    {
+      "url": "https://christianiabpos.sharepoint.com/sites/intranets-corp/Lists/currentAlerts/AllItems.aspx",
+      "date": "23"
+    }
+  ],
+  "etag": 402,
+  "id": "intranets_seenAlerts"
+}
