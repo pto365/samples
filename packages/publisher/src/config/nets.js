@@ -1,11 +1,20 @@
 import React from "react";
 import logo from ".//nets/logo_intranets.png";
 export default {
-  clientId: "3befe8c6-843e-4f4f-8b5b-b8e37174b961",
+  clientId: "c69e0e4e-eb7b-4ea3-a9a9-d0837dced021",
   scopes: ["user.readwrite", "Sites.Read.All"],
   title: "Publisher",
   logo,
-
+  model: {
+    toolLists: [
+      {
+        graphUrl:
+          "https://graph.microsoft.com/v1.0/sites/christianiabpos.sharepoint.com:/sites/intranets-tools:/lists/Links/items?expand=fields",
+        webUrl:
+          "https://christianiabpos.sharepoint.com/sites/intranets-tools/Lists/Links"
+      }
+    ]
+  },
   components: {
     header: (
       <div style={{ borderBottom: "1px solid #cccccc" }}>

@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Alarms from './Alarms';
+import Publisher from './Publisher';
 import * as serviceWorker from './serviceWorker';
 
 import {login} from "./authenticate" // autonom library - will force signin
 //import "./helpers/OfficeGraph"
 //login()
-ReactDOM.render(<Alarms />, document.getElementById('root'));
+ReactDOM.render(<Publisher />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
