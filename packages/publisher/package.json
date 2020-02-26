@@ -17,7 +17,7 @@
     "lodash": "^4.17.15",
     "mammoth": "^1.4.9",
     "moment":"^2.24.0",
-    "msal": "*1.2.0",
+    "msal": "^1.2.1",
     "office-ui-fabric-core": "^11.0.0",
     "office-ui-fabric-react": "^7.61.1",
     "quill-delta-to-html": "^0.11.0",

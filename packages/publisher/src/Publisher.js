@@ -29,10 +29,24 @@ import {
   MessageBar,
   MessageBarType,
   PrimaryButton,
-  Button
+  Button,
+  ScrollablePane,
+  ScrollbarVisibility,
+  StickyPositionType,
+  Sticky,
+  ConstrainMode,
+  Image,
+  Link,
+  ImageFit
 } from "office-ui-fabric-react";
+import {
+  DetailsList,
+  DetailsListLayoutMode,
+  Selection
+} from "office-ui-fabric-react/lib/DetailsList";
 import "./App.css";
 import packageData from "../package.json";
+import { CommandBar } from "office-ui-fabric-react/lib/CommandBar";
 initializeIcons();
 
 function inIframe() {
@@ -94,6 +108,225 @@ class ZTICKYBAR {
   get tileId() {
     return this._tileId;
   }
+}
+
+function _renderItemColumn(item, index, column) {
+  const fieldContent = item[column.fieldName];
+
+  switch (column.key) {
+    case "iconUrl":
+      return (
+        <div
+          style={{
+            backgroundColor: item.color,
+           
+            marginTop:"-16px",
+            height: "82px",
+            width: "82px"
+          }}
+        >
+          <div  style={{
+            
+            margin: "16px"
+          }}>
+          <img src={fieldContent} style={{ height: 50 }} />
+          </div>
+        </div>
+      );
+
+    default:
+      return <span>{fieldContent}</span>;
+  }
+}
+function StorageAdministrationContainer(props) {
+  const [dialog, setDialog] = useState("");
+  const [errors, setErrors] = useState([]);
+  const [items, setItems] = useState([]);
+  const [isDirty, setIsDirty] = useState(false);
+
+  const [hasSelection, setHasSelection] = useState(0);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [invokedItem, setInvokedItem] = useState(null);
+  const [needRefresh, setNeedRefresh] = useState(0);
+
+  const selection = new Selection({
+    onSelectionChanged: (x, y, z) => {
+      const selectionCount = selection.getSelectedCount();
+      setSelectedItems(selection.getSelection());
+      switch (selectionCount) {
+        case 0:
+          setHasSelection(selectionCount);
+
+          return "No items selected";
+
+        case 1:
+          setHasSelection(selectionCount);
+
+          return "1 item selected: " + selection.getSelection()[0].name;
+        default:
+          setHasSelection(selectionCount);
+
+          return `${selectionCount} items selected`;
+      }
+    }
+  });
+  const columns = [
+    {
+      key: "iconUrl",
+      name: "Icon",
+      fieldName: "iconUrl",
+      minWidth: 100,
+      maxWidth: 200,
+      isResizable: true
+    },
+    // {
+    //   key: "id",
+    //   name: "Id",
+    //   fieldName: "id",
+    //   minWidth: 50,
+    //   maxWidth: 100,
+    //   isResizable: true
+    // },
+    {
+      key: "column1",
+      name: "Name",
+      fieldName: "title",
+      // minWidth: 100,
+      // maxWidth: 200,
+      isResizable: true
+    }
+  ];
+
+  var farItems = [
+    // {
+    //   key: "info",
+    //   text: "Info",
+    //   // This needs an ariaLabel since it's icon-only
+    //   ariaLabel: "Info",
+    //   iconOnly: true,
+    //   disabled: false,
+    //   iconProps: { iconName: "Info" },
+    //   onClick: () => console.log("Info")
+    // }
+  ];
+  var overflowItems = [
+    // {
+    //   disabled: true,
+    //   key: "move",
+    //   text: "Move to...",
+    //   onClick: () => console.log("Move to"),
+    //   iconProps: { iconName: "MoveToFolder" }
+    // }
+  ];
+
+  useEffect(() => {}, [needRefresh, hasSelection]);
+  var commands = [
+    {
+      key: "save",
+      text: "Save",
+      disabled: !isDirty,
+      iconProps: { iconName: "Save" },
+      onClick: () => {
+        setIsDirty(false);
+      }
+    },
+    {
+      key: "add",
+      text: "Add",
+      disabled: false,
+      iconProps: { iconName: "AddLink" },
+      onClick: () => {
+        setDialog("add");
+        // setNeedRefresh(needRefresh + 1);
+        // items.push({ name: "Name", value: "Value" });
+        // setItems(items);
+        // setNeedRefresh(needRefresh + 1);
+      }
+    },
+    {
+      key: "view",
+      text: "View",
+      disabled: hasSelection !== 1,
+      iconProps: { iconName: "View" },
+      onClick: () => {
+        setDialog("view");
+        // setNeedRefresh(needRefresh + 1);
+        // items.push({ name: "Name", value: "Value" });
+        // setItems(items);
+        // setNeedRefresh(needRefresh + 1);
+      }
+    },
+    {
+      key: "delete",
+      text: "Delete",
+      disabled: hasSelection === 0,
+      iconProps: { iconName: "RemoveLink" },
+      onClick: () => {
+        setDialog("confirmDelete");
+        console.log("Deleting");
+      }
+    }
+    // {
+    //   key: "verify",
+    //   text: "Verify",
+    //   disabled: hasSelection===0,
+    //   iconProps: { iconName: "AccessibiltyChecker" },
+    //   onClick: () => console.log("Verifying")
+    // }
+  ];
+  return (
+    <div>
+      {errors.length > 0 && (
+        <MessageBar
+          messageBarType={MessageBarType.error}
+          isMultiline={true}
+          onDismiss={() => {
+            setErrors(errors.slice(1));
+          }}
+          dismissButtonAriaLabel="Close"
+        >
+          Error: {JSON.stringify(errors[0])}
+        </MessageBar>
+      )}
+
+      <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+        <DetailsList
+          onRenderItemColumn={_renderItemColumn}
+          items={props.links}
+          columns={columns}
+          setKey="set"
+          layoutMode={DetailsListLayoutMode.justified}
+          constrainMode={ConstrainMode.unconstrained}
+          selection={selection}
+          selectionPreservedOnEmptyClick={true}
+          ariaLabelForSelectionColumn="Toggle selection"
+          ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+          checkButtonAriaLabel="Row checkbox"
+          onItemInvoked={(item, rowNumber, e) => {
+            setInvokedItem(item);
+            setDialog("edit");
+            console.log("Invoked", item, rowNumber);
+          }}
+          onRenderDetailsHeader={(headerProps, defaultRender) => {
+            return (
+              <Sticky
+                stickyPosition={StickyPositionType.Header}
+                isScrollSynced={true}
+                stickyBackgroundColor="transparent"
+              >
+                <CommandBar
+                  items={commands}
+                  farItems={farItems}
+                  overflowItems={overflowItems}
+                />
+                <div>{defaultRender(headerProps)}</div>
+              </Sticky>
+            );
+          }}
+        />
+      </ScrollablePane>
+    </div>
+  );
 }
 
 /**
@@ -213,7 +446,7 @@ export default function Publisher() {
            * And finally show the alerts
            *
            *********************************************************************************************************************/}
-          Publisher
+          <StorageAdministrationContainer links={links} />
         </div>
       </div>
       {/**********************************************************************************************************************
@@ -236,9 +469,7 @@ export default function Publisher() {
                 </a>
               )}
             </div>
-<div>
-  {JSON.stringify(links)}
-</div>
+            <div></div>
             <div style={{ padding: 8, textAlign: "right" }}>
               <div>
                 <a href="https://www.jumpto365.com" target="_blank">
