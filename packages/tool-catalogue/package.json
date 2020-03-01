@@ -37,7 +37,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "react-scripts build && gh-pages -b master -d build -r https://github.com/ztickybar/tools"
+    "config-default":"cp src/config/default/index.html public/index.html && cp src/config/default.js src/config/index.js",
+    "config-nttdata":"cp src/config/nttdata/index.html public/index.html && cp src/config/nttdata.js src/config/index.js",
+    "deploy": "cp src/config/default/index.html public/index.html && cp src/config/default.js src/config/index.js && react-scripts build && gh-pages -b master -d build -r https://github.com/ztickybar/tools",
+    "deploy-nttdata": "cp src/config/nttdata/index.html public/index.html && cp src/config/nttdata.js src/config/index.js && react-scripts build && echo nttdata-tools.zbar.app > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/zbar-nttdata/tools"
+
   },
   "eslintConfig": {
     "extends": "react-app"

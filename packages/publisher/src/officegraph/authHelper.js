@@ -29,16 +29,28 @@ function getAccessToken (scopes) {
     msalApplication.handleRedirectCallback((error, response) => {
       // handle redirect response or error
     });
-
-    if (!msalApplication.getAccount()) {
-      msalApplication.loginRedirect(requestObj);
-    }
+//debugger
+    // if (!msalApplication.getAccount()) {
+    //   msalApplication.loginRedirect(requestObj);
+    // }
     try {
       const authResponse = await msalApplication.acquireTokenSilent(
         requestObj
       );
       resolve(authResponse.accessToken);
     } catch (error) {
+      //debugger
+      switch (error.errorCode) {
+        case  "user_login_error":
+          if (!msalApplication.getUser() && !msalApplication.loginInProgress()) {
+          msalApplication.loginRedirect(requestObj);
+        }
+          break;
+      
+        default:
+          break;
+      }
+     
       reject(error);
     }
   });

@@ -165,11 +165,11 @@ export default function Alerts() {
     } catch (error) {
       switch (error.errorCode) {
         case "user_login_error":
-          debugger;
+          //debugger;
           break;
 
         default:
-          debugger;
+          //debugger;
           break;
       }
 
@@ -304,7 +304,14 @@ export default function Alerts() {
                   onClick={() => {
                     saveSeenAlerts([]);
                   }}
-                />
+                /> <Button
+                text="clear session"
+                onClick={() => {
+                  sessionStorage.clear()
+                  window.location.reload()
+                  
+                }}
+              />
               </div>
               {JSON.stringify(seenAlerts)}
             </div>

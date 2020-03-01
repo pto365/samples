@@ -1,6 +1,6 @@
 import { UserAgentApplication } from "msal";
-import config from "../config"
-function getAccessToken (scopes) {
+import config from "../config";
+function getAccessToken(scopes) {
   var replyUrl =
     window.location.protocol +
     "//" +
@@ -16,6 +16,7 @@ function getAccessToken (scopes) {
     auth: {
       clientId: config.clientId,
       redirectUri: replyUrl,
+      storeAuthStateInCookie: true,
       authority: "https://login.microsoftonline.com/common"
     }
   };
@@ -29,32 +30,44 @@ function getAccessToken (scopes) {
     msalApplication.handleRedirectCallback((error, response) => {
       // handle redirect response or error
     });
-//debugger
+    //debugger
     // if (!msalApplication.getAccount()) {
     //   msalApplication.loginRedirect(requestObj);
     // }
     try {
-      const authResponse = await msalApplication.acquireTokenSilent(
-        requestObj
-      );
+      const authResponse = await msalApplication.acquireTokenSilent(requestObj);
       resolve(authResponse.accessToken);
     } catch (error) {
       //debugger
       switch (error.errorCode) {
-        case  "user_login_error":
-          msalApplication.loginRedirect(requestObj);
+        case "user_login_error":
+          if (
+            !msalApplication.getAccount() &&
+            !msalApplication.getLoginInProgress()
+          ) {
+            var loops = sessionStorage.getItem("loops")
+              ? parseInt(sessionStorage.getItem("loops"))
+              : 0;
+            if (loops > 3) {
+              sessionStorage.setItem("loops", 0);
+              sessionStorage.clear();
+              window.location.reload();
+            }
+            sessionStorage.setItem("loops", loops + 1);
+            msalApplication.loginRedirect(requestObj);
+          }
+
           break;
-      
+
         default:
           break;
       }
-     
+
       reject(error);
     }
   });
-};
+}
 
 export default {
   getAccessToken
-  
 };

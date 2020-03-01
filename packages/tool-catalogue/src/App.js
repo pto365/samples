@@ -59,6 +59,15 @@ import "react-resizable/css/styles.css";
 import GridLayout from "react-grid-layout";
 import ToolboxLayout from "./components/ToolboxLayout";
 import { ErrorCacheKeys } from "msal/lib-commonjs/utils/Constants";
+
+import config from "./config"
+function inIframe() {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+}
 initializeIcons();
 
 export default function App() {
@@ -87,11 +96,11 @@ export default function App() {
   const [layouts, setLayouts] = useState({});
   const [currentPivot, setCurrentPivot] = useState("pinned");
   const [tableApiSelected, setTableApiSelected] = useState(
-    "https://api.jumpto365.com/table/hexatown.com/PTO365"
+    "https://api.jumpto365.com/table/jumpto365.com/APAC%20DIGITAL%20WORKPLACE"
   );
   const [selectedGroup, setSelectedGroup] = useState("");
   const [groups, setGroups] = useState([]);
-
+  const inFrame = inIframe();
   const addTile = tile => {
     setProgress("Adding pin");
     OfficeGraph.addTile(ztickyFolder, tile)
@@ -161,9 +170,9 @@ export default function App() {
     }
     var href = search.src
       ? search.src
-      : "https://api.jumpto365.com/table/hexatown.com/PTO365";
-    setTableUrl("https://pro.jumpto365.com/@/hexatown.com/PTO365");
-    readGrid(href, "hexatown.com/PTO365");
+      : config.defaultTableAPI;
+    setTableUrl(config.defaultTableAPI);
+    readGrid(href,config.defaultTableKey);
   }, []);
 
   function readGrid(href, tableId) {
@@ -389,6 +398,9 @@ export default function App() {
   };
   return (
     <div>
+            {!inFrame && (
+ config.components.header
+      )}
       {/* <CommandBar
         // items={_items}
         // overflowItems={_overflowItems}
@@ -506,20 +518,20 @@ export default function App() {
               </div>
             </div>
             <div style={{ flexGrow: "1" }}>
-              <Pivot
+              {/* <Pivot
                 style={{ padding: "0px" }}
                 selectedKey={currentPivot}
                 onLinkClick={(e, pivot, x) => {
                   // debugger
                   // setCurrentPivot(pivot.key)
                 }}
-              >
+              > */}
                 {filteredMyTools.length > 0 && (
-                  <PivotItem
-                    key="pinned"
-                    headerText="Pinned"
-                    itemCount={filteredMyTools.length}
-                  >
+                  // <PivotItem
+                  //   key="pinned"
+                  //   headerText="Pinned"
+                  //   itemCount={filteredMyTools.length}
+                  // >
                     <div>
                       <div style={{ display: "flex", flexWrap: "wrap" }}>
                         {filteredMyTools.map((folder, key) => {
@@ -554,7 +566,7 @@ export default function App() {
                         })}
                       </div>
                     </div>
-                  </PivotItem>
+                  // </PivotItem>
                 )}
                 {/* {siteUrl && (
                   <PivotItem
@@ -585,11 +597,11 @@ export default function App() {
                     />
                   </PivotItem>
                 )} */}
-                <PivotItem
+                {/* <PivotItem
                   key="catalogue"
                   headerText="Catalogue"
                   itemCount={filteredTiles.length}
-                >
+                > */}
                   <div
                     style={{
                       display: "flex",
@@ -609,74 +621,7 @@ export default function App() {
                           //debugger
                         }}
                         xxselectedKey={tableApiSelected} //""
-                        options={[
-                          {
-                            key: "fruitsHeader",
-                            text: "Nets Group Periodic Tables",
-                            itemType: DropdownMenuItemType.Header
-                          },
-                          {
-                            key: {
-                              id: "nets.eu/2019-q4",
-                              api:
-                                "https://api.jumpto365.com/table/nets.eu/2019-q4",
-                              web: "https://pro.jumpto365.com/@/nets.eu/2019-q4"
-                            },
-                            text: "One Tenant - Wave 1"
-                          },
-                          {
-                            key: {
-                              id: "nets.eu/digital-workplace",
-                              api:
-                                "https://api.jumpto365.com/table/nets.eu/digital-workplace",
-                              web:
-                                "https://pro.jumpto365.com/@/nets.eu/digital-workplace"
-                            },
-                            text: "Digital Workplace"
-                          },
-                          {
-                            key: {
-                              id: "nets.eu/group-tech-highlevel",
-                              api:
-                                "https://api.jumpto365.com/table/nets.eu/group-tech-highlevel",
-                              web:
-                                "https://pro.jumpto365.com/@/nets.eu/group-tech-highlevel"
-                            },
-                            text: "Group Tech Playbook"
-                          },
-
-                          {
-                            key: "divider_1",
-                            text: "-",
-                            itemType: DropdownMenuItemType.Divider
-                          },
-                          {
-                            key: "jumpto365",
-                            text: "Generic Periodic Tables",
-                            itemType: DropdownMenuItemType.Header
-                          },
-                          {
-                            key: {
-                              id: "hexatown.com/PTO365",
-                              api:
-                                "https://api.jumpto365.com/table/hexatown.com/PTO365",
-                              web:
-                                "https://pro.jumpto365.com/@/hexatown.com/PTO365"
-                            },
-                            text: "Office 365"
-                          },
-                          {
-                            key: {
-                              id: "jumpto365.com/ems5",
-                              api:
-                                "https://api.jumpto365.com/table/jumpto365.com/ems5",
-                              web:
-                                "https://pro.jumpto365.com/@/jumpto365.com/ems5"
-                            },
-                            text: "EMS"
-                          }
-                          //{ key: 'https://raw.githubusercontent.com/hexatown/docs/master/contexts/ai/index.json', text: 'AI' }
-                        ]}
+                        options={config.options}
                         styles={dropdownStyles}
                       />
                     </div>
@@ -799,8 +744,8 @@ export default function App() {
                       })}
                     </div>
                   )}
-                </PivotItem>
-                {memberships.length > 0 && (
+                {/* </PivotItem> */}
+                {/* {memberships.length > 0 && (
                   <PivotItem
                     headerText="Teams"
                     itemCount={filteredMemberShips.length}
@@ -854,8 +799,8 @@ export default function App() {
                       <ViewErrors errors={errors} />
                     </div>
                   </PivotItem>
-                )}
-              </Pivot>
+                )} */}
+              {/* </Pivot> */}
             </div>
             {showFilterOptions && (
               <div

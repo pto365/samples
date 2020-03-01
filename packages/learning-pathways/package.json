@@ -41,9 +41,12 @@
     "eject": "react-scripts eject",
     "config-default":"cp src/config/default.js src/config/index.js",
     "config-nets":"cp src/config/nets.js src/config/index.js",
-
+    "config-intrateam":"cp src/config/intrateam.js src/config/index.js",
+    "config-nttdata":"cp src/config/nttdata.js src/config/index.js",
     "deploy": "cp src/config/default.js src/config/index.js && react-scripts build && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/ztickybar/learn",
-    "deploy-nets": "cp src/config/nets.js src/config/index.js && react-scripts build && echo lpath.nets-intranets.com > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/nets-intranets/lpath"
+    "deploy-nets": "cp src/config/nets.js src/config/index.js && react-scripts build && echo lpath.nets-intranets.com > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/nets-intranets/lpath",
+    "deploy-intrateam": "cp src/config/intrateam.js src/config/index.js && react-scripts build && echo intrateam-lpath.zbar.app > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/zbar-intrateam/lpath",
+    "deploy-nttdata": "cp src/config/nttdata.js src/config/index.js && react-scripts build && echo nttdata-lpath.zbar.app > build/CNAME && cp build/index.html build/404.html && gh-pages -b master -d build -r https://github.com/zbar-nttdata/lpath"
 
   },
   "eslintConfig": {

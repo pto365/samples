@@ -1,6 +1,6 @@
 
 import React from "react";
-import logo from "./nttdata/logo.svg"
+import logo from ".//intrateam/logo_IntraTeam.png"
 export default {
   clientId: "3befe8c6-843e-4f4f-8b5b-b8e37174b961",
   scopes: ["user.readwrite","Sites.Read.All"],
@@ -13,7 +13,7 @@ export default {
     }
   },
   welcome:(<>
-  <h1>NTTDATA - Microsoft 365 Training</h1>
+  <h1>IntraTeam - Microsoft 365 Training</h1>
 
   </>)
 
