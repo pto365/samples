@@ -16,7 +16,7 @@
     "fs-extra": "^8.1.0",
     "https": "^1.0.0",
     "into-stream": "5.1.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mammoth": "^1.4.9",
     "msal": "*1.2.0",
     "office-ui-fabric-core": "^11.0.0",
